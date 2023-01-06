@@ -1,0 +1,145 @@
+name: Build and Ship
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-linux:
+    name: build-${{ matrix.os }}-${{ matrix.cc }}
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: ${{ matrix.cc }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: ["gcc", "clang"]
+        os: ["ubuntu-latest"]
+
+    steps:
+    - name: Checkout Source
+      uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+
+#    - name: Install Dependencies
+#      run: sudo apt-get install -y libjansson-dev zlib1g-dev libzstd-dev
+
+    - name: Configure CMake
+      run: cmake -DCMAKE_BUILD_TYPE=Debug .
+
+    - name: Build
+      run: cmake --build .
+
+#    - name: Test
+#      run: ctest
+
+    - name: Create rpg-ng Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-${{ matrix.cc }}-rpg-ng-master
+        path: bin/*
+        if-no-files-found: error
+        retention-days: 1
+
+  build-macos-latest-clang:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+#      - name: Install Dependencies
+#        run: brew install jansson zlib zstd
+
+      - name: Configure CMake
+        run: cmake -DCMAKE_BUILD_TYPE=Debug .
+
+      - name: Build
+        run: cmake --build .
+
+#      - name: Test
+#        run: ctest
+
+      - name: Create rpg-ng Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-latest-clang-rpg-ng-master
+          path: bin/*
+          if-no-files-found: error
+          retention-days: 1
+
+  build-windows-cygwin-latest-gcc:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Install Cygwin
+        uses: cygwin/cygwin-install-action@v3
+        with:
+          packages: cmake gcc-core clang 
+#      - name: Install dependencies
+#        run: vcpkg install jansson:x64-windows zstd:x64-windows zlib:x64-windows
+
+      - name: Configure CMake
+        run: cmake -DCMAKE_BUILD_TYPE=Debug .
+
+      - name: Build
+        run: cmake --build . --config Debug
+
+#      - name: Test
+#        run: ctest -C Debug
+
+      - name: Create rpg-ng Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-latest-msvc-rpg-ng-master
+          path: bin/*
+          if-no-files-found: error
+          retention-days: 1
+
+#  Pages:
+#    needs: [build-linux, build-windows-latest-msvc] #, build-macos-clang]
+#
+#    permissions:
+#      pages: write
+#      id-token: write
+#
+#    environment:
+#      name: github-pages
+#      url: ${{ steps.deployment.outputs.page_url }}
+#
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Install Dependencies
+#        run: sudo apt-get install -y graphviz doxygen libjansson-dev zlib1g-dev libzstd-dev
+#
+#      - name: Checkout source
+#        uses: actions/checkout@v3
+#
+#      - name: Configure CMake
+#        run: cmake -DCMAKE_BUILD_TYPE=Release -DLIBTMJ_DOCS=ON -DLIBTMJ_ZSTD=ON -DLIBTMJ_ZLIB=ON .
+#
+#      - name: Build Docs
+#        run: cmake --build .
+#
+#      - name: Create Docs Artifact
+#        uses: actions/upload-pages-artifact@v1.0.4
+#        with:
+#          path: docs/html/
+#
+#      - name: Publish Documentation
+#        uses: actions/deploy-pages@v1.2.2

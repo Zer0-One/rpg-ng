@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25.1)
+cmake_minimum_required(VERSION 3.23.2)
 
 project(rpg-ng VERSION 0.1.0 DESCRIPTION "A small and simple 2D RPG engine")
 
@@ -32,7 +32,7 @@ target_compile_definitions(rpgng PUBLIC
 #target_include_directories(tmj PRIVATE src)
 
 # Set library version
-set_target_properties(rpgng PROPERTIES VERSION ${PROJECT_VERSION})
+#set_target_properties(rpgng PROPERTIES VERSION ${PROJECT_VERSION})
 
 # Set link libraries
 #target_link_libraries(tmj jansson::jansson)
@@ -45,8 +45,8 @@ set_target_properties(rpgng PROPERTIES VERSION ${PROJECT_VERSION})
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_C_FLAGS_RELEASE "-O2")
-if(WIN32)
-    set(CMAKE_C_FLAGS_DEBUG "-Z7")
+if(CYGWIN)
+    set(CMAKE_C_FLAGS_DEBUG "-O0 -g3")
 else()
     set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
 endif()

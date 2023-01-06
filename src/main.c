@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#define _RPGNG_STR(x) #x
+#define RPGNG_STR(x) _RPGNG_STR(x)
+
 void print_usage(){
     printf("Usage: rpg-ng [-d]\n");
     printf("Command-line options:\n");
@@ -13,10 +16,10 @@ void print_usage(){
 const unsigned int VERSION_MAJOR = RPGNG_VERSION_MAJOR;
 const unsigned int VERSION_MINOR = RPGNG_VERSION_MINOR;
 const unsigned int VERSION_PATCH = RPGNG_VERSION_PATCH;
-const char* const VERSION = RPGNG_VERSION;
+const char* const VERSION = RPGNG_STR(RPGNG_VERSION);
 
 void print_versions(){
-    printf("rpg-ng version %s\n\n", RPGNG_VERSION);
+    printf("rpg-ng version %s\n\n", RPGNG_STR(RPGNG_VERSION));
     printf("Built with support for: \n");
     printf("\tSuper Cool Lib 1.5.2\n");
     printf("\tOther Lib 5.3\n");
