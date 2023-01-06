@@ -1,15 +1,18 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "log.h"
+
 #define _RPGNG_STR(x) #x
 #define RPGNG_STR(x) _RPGNG_STR(x)
 
 void print_usage(){
-    printf("Usage: rpg-ng [-d]\n");
+    printf("Usage: rpg-ng [-d] [-l logfile]\n\n");
     printf("Command-line options:\n");
-    printf("\n\t-d,\tEnables debug mode, increasing logging verbosity");
-    printf("\n\t-h,\tPrints this help information");
-    printf("\n\t-v,\tPrints version information");
+    printf("\n\t-d\t\tEnables debug mode, increasing logging verbosity");
+    printf("\n\t-l [logfile]\tA logfile to which logs will be written");
+    printf("\n\t-h\t\tPrints this help information");
+    printf("\n\t-v\t\tPrints version information");
     printf("\n");
 }
 
@@ -28,10 +31,16 @@ void print_versions(){
 int main(int argc, char* argv[]){
     int opt;
 
-    while((opt = getopt(argc, argv, "dhv")) != -1){
+    log_priority log_level;
+    char* log_path = NULL;
+
+    while((opt = getopt(argc, argv, "dhvl:")) != -1){
         switch(opt){
             case 'd':
-                printf("Wow very cool debug mode\n");
+                log_level = LOG_DEBUG;
+                break;
+            case 'l':
+                log_path = optarg;
                 break;
             case 'h':
                 print_usage();
@@ -44,4 +53,11 @@ int main(int argc, char* argv[]){
                 _exit(-1);
         }
     }
+
+    // Initialize logging
+    if(log_init(log_level, log_path) != 0){
+        _exit(-1);
+    }
+
+    logmsg(LOG_INFO, "rpg-ng initializing");
 }

@@ -19,6 +19,7 @@ add_executable(rpgng)
 target_sources(rpgng
     PRIVATE
         "src/main.c"
+        "src/log.c"
 )
 
 target_compile_definitions(rpgng PUBLIC
