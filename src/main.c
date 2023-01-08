@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "htable.h"
 #include "log.h"
 
 #define _RPGNG_STR(x) #x
@@ -60,4 +61,9 @@ int main(int argc, char* argv[]){
     }
 
     logmsg(LOG_INFO, "rpg-ng initializing");
+
+    // Initialize SDL
+//    if(sdl_init() != 0){
+//        _exit(-1);
+//    }
 }
