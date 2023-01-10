@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "entity.h"
 #include "htable.h"
 #include "log.h"
 
@@ -61,6 +62,17 @@ int main(int argc, char* argv[]){
     }
 
     logmsg(LOG_INFO, "rpg-ng initializing");
+
+    // Initialize entities
+    if(entity_init() != 0){
+        logmsg(LOG_ERR, "Failed to initialize entity subsystem");
+
+        _exit(-1);
+    }
+
+    entity_add(NPC, "Adoring Fan");
+
+    entity_remove(69);
 
     // Initialize SDL
 //    if(sdl_init() != 0){

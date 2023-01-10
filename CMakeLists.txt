@@ -18,6 +18,7 @@ option(BUILD_SHARED_LIBS "Build as a shared library" ON)
 add_executable(rpgng)
 target_sources(rpgng
     PRIVATE
+        "src/entity.c"
         "src/htable.c"
         "src/log.c"
         "src/main.c"

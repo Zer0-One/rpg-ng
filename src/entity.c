@@ -1,47 +1,96 @@
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "entity.h"
 #include "htable.h"
 #include "log.h"
 
-size_t entity_list_size = 0;
-Entity* entity_list = NULL;
+HashTable* entities = NULL;
 
-int entity_add(int id, EntityType type, char* name){
-    if(id == 0){
-        logmsg(LOG_ERR, "Unable to add entity '%s', 0 is not a valid entity ID", name);
+uint32_t entity_next_id = 1;
+
+int entity_init(){
+    if(entities != NULL){
+        logmsg(LOG_WARN, "entity: Attempted to initialize already-initialized entity subsystem");
 
         return -1;
     }
 
-    if(entity_list == NULL){
-        entity_list = calloc(10, sizeof(Entity));
+    entities = htable_create(16);
 
-        if(entity_list == NULL){
-            logmsg(LOG_ERR, "Unable to initialize entity list, the system is out of memory");
+    if(entities == NULL){
+        logmsg(LOG_WARN, "entity: Unable to create entity table, the system is out of memory");
 
-            return -1;
-        }
-
-        entity_list_size = 10;
+        return -1;
     }
 
-    for(size_t i = 0; i < entity_list_size; i++){
-        if(entity_list[i].id == 0){
-            entity_list[i].id = id;
-            entity_list[i].type = type;
-            entity_list[i].name = strdup(name);
-
-            if(entity_list[i].name == NULL){
-                logmsg(LOG_ERR, "Unable to add entity '%s', the system is out of memory", name);
-
-                return -1;
-            }
-
-            return 0;
-        }
-    }
-
-    // There's no space left, resize
-
+    return 0;
 }
+
+#define ENTITY_NAME_LEN_MAX 128
+
+uint32_t entity_add(EntityType type, char* name){
+    logmsg(LOG_DEBUG, "entity: Attempting to add new entity of type %d, name '%s'", type, name);
+
+    if(entities == NULL){
+        logmsg(LOG_WARN, "entity: Cannot add entity before initializing entity subsystem");
+
+        return -1;
+    }
+
+    Entity* e = malloc(sizeof(Entity));
+
+    if(e == NULL){
+        logmsg(LOG_WARN, "entity: Cannot allocate new entity, the system is out of memory");
+
+        return -1;
+    }
+
+    e->name = strndup(name, ENTITY_NAME_LEN_MAX);
+
+    if(e->name == NULL){
+        logmsg(LOG_WARN, "entity: Cannot copy entity name, the system is out of memory");
+
+        return -1;
+    }
+
+    e->type = type;
+    e->id = entity_next_id;
+
+    if(htable_add(entities, (uint8_t*)&entity_next_id, sizeof(entity_next_id), e) != 0){
+        logmsg(LOG_WARN, "entity: Unable to add new entity to entity table");
+
+        free(e->name);
+        free(e);
+
+        return -1;
+    }
+
+    entity_next_id++;
+
+    return e->id;
+}
+
+int entity_remove(uint32_t id){
+    if(htable_remove(entities, (uint8_t*)&id, sizeof(id)) != 0){
+        logmsg(LOG_WARN, "entity: Failed to remove entity:%" PRIu32 ", not found in entity table", id);
+
+        return -1;
+    }
+}
+
+Entity* entity_get(uint32_t id){
+    Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
+
+    if(e == NULL){
+        logmsg(LOG_WARN, "entity: Failed to get entity:%" PRIu32 ", not found in entity table", id);
+
+        return NULL;
+    }
+}
+
+//Entity* entity_get_all(){
+//    
+//}

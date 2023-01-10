@@ -13,22 +13,20 @@ char* log_file_path = NULL;
 log_priority log_level = LOG_INFO;
 
 int log_init(log_priority level, char* path){
-    if(path == NULL){
-        return 0;
+    if(path != NULL){
+        FILE* handle = fopen(path, "ab");
+
+        if(!handle){
+            logmsg(LOG_ERR, "log: Unable to open logfile '%s' for writing, %s", path, strerror(errno));
+
+            return -1;
+        }
+
+        log_file = handle;
+        log_file_path = path;
     }
 
     log_level = level;
-
-    FILE* handle = fopen(path, "ab");
-
-    if(!handle){
-        logmsg(LOG_ERR, "Unable to open logfile '%s' for writing, %s", path, strerror(errno));
-
-        return -1;
-    }
-
-    log_file = handle;
-    log_file_path = path;
 
     return 0;
 }
@@ -101,7 +99,7 @@ void logmsg(log_priority loglevel, char* msg, ...){
 int log_close(){
     if(log_file != NULL){
         if(fclose(log_file) != 0){
-            logmsg(LOG_ERR, "Unable to close logfile '%s', %s", log_file_path, strerror(errno));
+            logmsg(LOG_ERR, "log: Unable to close logfile '%s', %s", log_file_path, strerror(errno));
 
             return -1;
         }

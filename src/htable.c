@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "htable.h"
 #include "log.h"
@@ -72,6 +73,10 @@ void htable_destroy(HashTable* t){
         return;
     }
 
+    for(size_t i = 0; i < t->bucket_count; i++){
+        free(t->buckets[i].key);
+    }
+
     free(t->buckets);
 
     free(t);
@@ -119,7 +124,7 @@ void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size){
 }
 
 int htable_rehash(HashTable* t, size_t scale){
-    if(scale <= 1){
+    if(scale < 2){
         logmsg(LOG_WARN, "htable: Attempted to scale table by less than 2x");
 
         return -1;
@@ -158,7 +163,7 @@ int htable_rehash(HashTable* t, size_t scale){
     return 0;
 }
 
-int htable_add(HashTable* t, const uint8_t* key, size_t key_size, const void* value){
+int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value){
     if(t == NULL){
         logmsg(LOG_WARN, "htable: Attempted to add an entry to a null table");
 
@@ -194,7 +199,16 @@ int htable_add(HashTable* t, const uint8_t* key, size_t key_size, const void* va
     // Iterate in a circle until we find an empty bucket
     for(size_t i = index; i != index - 1; i = (i + 1) % t->bucket_count){
         if(t->buckets[i].key == NULL){
-            t->buckets[i].key = key;
+            t->buckets[i].key = malloc(key_size);
+
+            if(t->buckets[i].key == NULL){
+                logmsg(LOG_WARN, "htable: Unable to add entry to table, the system is out of memory");
+
+                return -3;
+            }
+
+            memcpy(t->buckets[i].key, key, key_size);
+
             t->buckets[i].key_size = key_size;
             t->buckets[i].value = value;
 
@@ -248,6 +262,7 @@ int htable_remove(HashTable* t, const uint8_t* key, size_t key_size){
 
             // Key found
             if(j == key_size - 1){
+                free(t->buckets[i].key);
                 t->buckets[i].key = NULL;
                 t->buckets[i].key_size = 0;
                 t->buckets[i].value = NULL;
@@ -259,5 +274,5 @@ int htable_remove(HashTable* t, const uint8_t* key, size_t key_size){
 
     logmsg(LOG_WARN, "htable: Unable to remove entry from table, key not found");
 
-    return -1;
+    return -2;
 }
