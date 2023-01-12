@@ -22,6 +22,8 @@ target_sources(rpgng
         "src/htable.c"
         "src/log.c"
         "src/main.c"
+        "src/component/dialogue.c"
+        "src/component/inventory.c"
 )
 
 target_compile_definitions(rpgng PUBLIC

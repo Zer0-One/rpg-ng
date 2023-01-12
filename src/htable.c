@@ -165,7 +165,7 @@ int htable_rehash(HashTable* t, size_t scale){
 
 int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value){
     if(t == NULL){
-        logmsg(LOG_WARN, "htable: Attempted to add an entry to a null table");
+        logmsg(LOG_WARN, "htable: Attempted to add a mapping to a null table");
 
         return -1;
     }
@@ -189,7 +189,7 @@ int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value){
     }
 
     if(htable_lookup(t, key, key_size) != NULL){
-        logmsg(LOG_WARN, "htable: Unable to add entry to table, key already exists");
+        logmsg(LOG_WARN, "htable: Unable to add mapping to table, key already exists");
 
         return -2;
     }
@@ -202,7 +202,7 @@ int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value){
             t->buckets[i].key = malloc(key_size);
 
             if(t->buckets[i].key == NULL){
-                logmsg(LOG_WARN, "htable: Unable to add entry to table, the system is out of memory");
+                logmsg(LOG_WARN, "htable: Unable to add mapping to table, the system is out of memory");
 
                 return -3;
             }
@@ -230,7 +230,7 @@ int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value){
 
 int htable_remove(HashTable* t, const uint8_t* key, size_t key_size){
     if(t == NULL){
-        logmsg(LOG_WARN, "htable: Attempted to remove an entry from a null table");
+        logmsg(LOG_WARN, "htable: Attempted to remove a mapping from a null table");
 
         return -1;
     }
@@ -272,7 +272,7 @@ int htable_remove(HashTable* t, const uint8_t* key, size_t key_size){
         }
     }
 
-    logmsg(LOG_WARN, "htable: Unable to remove entry from table, key not found");
+    logmsg(LOG_WARN, "htable: Unable to remove mapping from table, key not found");
 
     return -2;
 }

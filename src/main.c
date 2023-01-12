@@ -5,6 +5,9 @@
 #include "htable.h"
 #include "log.h"
 
+#include "component/dialogue.h"
+#include "component/inventory.h"
+
 #define _RPGNG_STR(x) #x
 #define RPGNG_STR(x) _RPGNG_STR(x)
 
@@ -64,15 +67,25 @@ int main(int argc, char* argv[]){
     logmsg(LOG_INFO, "rpg-ng initializing");
 
     // Initialize entities
-    if(entity_init() != 0){
+    if(!entity_init()){
         logmsg(LOG_ERR, "Failed to initialize entity subsystem");
 
         _exit(-1);
     }
 
-    entity_add(NPC, "Adoring Fan");
+    // Initialize component subsystems
+    if(!inventory_init()){
+        _exit(-1);
+    }
+    if(!dialogue_init()){
+        _exit(-1);
+    }
 
-    entity_remove(69);
+    uint16_t e = entity_create("adoring-fan");
+
+    inventory_create(e, NULL, 0);
+
+    //entity_destroy(69);
 
     // Initialize SDL
 //    if(sdl_init() != 0){
