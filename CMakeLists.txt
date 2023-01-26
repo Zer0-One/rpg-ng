@@ -15,6 +15,8 @@ option(RPGNG_DOCS "Enable compiling documentation" OFF)
 option(BUILD_SHARED_LIBS "Build as a shared library" ON)
 # To enable debug builds, use -DCMAKE_BUILD_TYPE=Debug
 
+find_package(Lua REQUIRED)
+
 add_executable(rpgng)
 target_sources(rpgng
     PRIVATE
@@ -22,6 +24,8 @@ target_sources(rpgng
         "src/htable.c"
         "src/log.c"
         "src/main.c"
+        "src/script.c"
+        "src/component/component.c"
         "src/component/dialogue.c"
         "src/component/inventory.c"
 )
@@ -34,13 +38,13 @@ target_compile_definitions(rpgng PUBLIC
 )
 
 # Set include directories
-#target_include_directories(tmj PRIVATE src)
+target_include_directories(rpgng SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
 
 # Set library version
 #set_target_properties(rpgng PROPERTIES VERSION ${PROJECT_VERSION})
 
 # Set link libraries
-#target_link_libraries(tmj jansson::jansson)
+target_link_libraries(rpgng ${LUA_LIBRARIES})
 
 #if(WIN32)
 #    target_link_libraries(rpgng cygwin1.dll)

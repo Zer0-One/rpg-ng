@@ -11,7 +11,9 @@
 
 #include "component/inventory.h"
 
+// Maps entities by ID (uint16_t)
 HashTable* entities = NULL;
+// Maps entities by name (char*)
 HashTable* entities_str = NULL;
 
 uint16_t entity_next_id = 1;
@@ -62,7 +64,7 @@ uint16_t entity_create(const char* name){
     Entity* e = calloc(1, sizeof(Entity));
 
     if(e == NULL){
-        logmsg(LOG_WARN, "entity: Cannot allocate new entity, the system is out of memory");
+        logmsg(LOG_WARN, "entity: Cannot allocate new entity with name '%s', the system is out of memory", name);
 
         return -1;
     }
@@ -71,8 +73,8 @@ uint16_t entity_create(const char* name){
 
     e->id = entity_next_id;
 
-    if(htable_add(entities, (uint8_t*)&entity_next_id, sizeof(entity_next_id), e) != 0){
-        logmsg(LOG_WARN, "entity: Unable to add new entity to entity table");
+    if(htable_add(entities, (uint8_t*)&e->id, sizeof(e->id), e) != 0){
+        logmsg(LOG_WARN, "entity(%" PRIu16 "): Unable to map newly created entity in entity table", e->id);
 
         free(e);
 
@@ -80,12 +82,12 @@ uint16_t entity_create(const char* name){
     }
 
     if(htable_add(entities_str, name, strlen(name), e) != 0){
-        logmsg(LOG_WARN, "entity: Unable to add new entity to entity_str table");
+        logmsg(LOG_WARN, "entity(%" PRIu16 "): Unable to map newly created entity in entity string table", e->id);
 
-        if(htable_remove(entities, (uint8_t*)&entity_next_id, sizeof(entity_next_id)) == -2){
+        if(htable_remove(entities, (uint8_t*)&e->id, sizeof(e->id)) == -2){
             // We just added that mapping. If we can't remove it, something's really fucked.
-            logmsg(LOG_ERR, "entity: Failed to remove mapping from entity table");
-            logmsg(LOG_ERR, "entity: Something's fucked");
+            logmsg(LOG_ERR, "entity(%" PRIu16 "): Failed to remove mapping from entity table", e->id);
+            logmsg(LOG_ERR, "entity(%" PRIu16 "): Something's fucked", e->id);
 
             _exit(-1);
         }
@@ -102,7 +104,7 @@ uint16_t entity_create(const char* name){
 
 bool entity_destroy(uint16_t id){
     if(htable_remove(entities, (uint8_t*)&id, sizeof(id)) != 0){
-        logmsg(LOG_WARN, "entity: Failed to remove entity:%" PRIu16 ", not found in entity table", id);
+        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to remove entity, not found in entity table", id);
 
         return -1;
     }
@@ -115,12 +117,52 @@ Entity* entity_get(uint16_t id){
     Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
 
     if(e == NULL){
-        logmsg(LOG_WARN, "entity: Failed to get entity:%" PRIu16 ", not found in entity table", id);
+        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to get entity, not found in entity table", id);
 
         return NULL;
     }
 }
 
-//Entity* entity_get_all(){
-//    
-//}
+bool entity_has_component(uint16_t id, ComponentType type){
+    Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
+
+    if(e == NULL){
+        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to check if entity has component, entity not mapped in entity table", id);
+
+        return false;
+    }
+
+    if(htable_lookup(e->components, (uint8_t*)&type, sizeof(type)) != NULL){
+        return true;
+    }
+
+    return false;
+}
+
+void* entity_get_component(uint16_t id, ComponentType type){
+    logmsg(LOG_DEBUG, "entity(%" PRIu16 "): Attempting to get component %d from entity", type);
+
+    if(!entity_has_component(id, type)){
+        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to get component, entity does not have a component of type %d", type);
+
+        return NULL;
+    }
+
+    Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
+
+    if(e == NULL){
+        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to get component, entity not mapped in entity table", id);
+
+        return NULL;
+    }
+
+    void* obj = htable_lookup(e->components, (uint8_t*)&type, sizeof(type)); 
+
+    if(obj == NULL){
+        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to get component, requested component not mapped to entity", id);
+
+        return NULL;
+    }
+
+    return obj;
+}

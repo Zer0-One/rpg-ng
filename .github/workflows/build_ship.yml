@@ -25,8 +25,8 @@ jobs:
       with:
         submodules: 'true'
 
-#    - name: Install Dependencies
-#      run: sudo apt-get install -y libjansson-dev zlib1g-dev libzstd-dev
+    - name: Install Dependencies
+      run: sudo apt-get install -y lua5.4-dev
 
     - name: Configure CMake
       run: cmake -DCMAKE_BUILD_TYPE=Debug .
@@ -54,8 +54,8 @@ jobs:
         with:
           submodules: 'true'
 
-#      - name: Install Dependencies
-#        run: brew install jansson zlib zstd
+      - name: Install Dependencies
+        run: brew install lua
 
       - name: Configure CMake
         run: cmake -DCMAKE_BUILD_TYPE=Debug .
@@ -89,7 +89,7 @@ jobs:
       - name: Install Cygwin
         uses: cygwin/cygwin-install-action@v3
         with:
-          packages: cmake gcc-core clang doxygen graphviz
+          packages: cmake gcc-core clang doxygen graphviz liblua-devel
 
       - name: Configure CMake
         run: cmake -DCMAKE_BUILD_TYPE=Debug .
@@ -123,7 +123,7 @@ jobs:
 
     steps:
       - name: Install Dependencies
-        run: sudo apt-get install -y graphviz doxygen
+        run: sudo apt-get install -y lua5.4-dev graphviz doxygen
 
       - name: Checkout source
         uses: actions/checkout@v3

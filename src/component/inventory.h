@@ -61,8 +61,8 @@ Item* inventory_item_get(uint16_t item_id);
 Item* inventory_item_get_byname(const char* name);
 
 /**
- * Creates a new inventory and initializes it with the items represented by the
- * given set of item IDs.
+ * Creates a new inventory, initializes it with the items represented by the
+ * given set of item IDs, and then maps it in the entity component table.
  *
  * @param entity_id The ID of an entity with which the created inventory will be associated.
  * @param item_ids An array of item IDs which will be added to the newly-created inventory.
@@ -75,8 +75,11 @@ bool inventory_create(uint16_t entity_id, uint16_t* item_ids, size_t ids_size);
 
 /**
  * Destroys the inventory associated with the given entity, and removes the
- * mapping from the inventory table.
+ * mapping from the entity's component table.
+ *
+ * @return On success, returns true.
+ * @return On failure, returns false.
  */
-void inventory_destroy(uint16_t entity_id);
+bool inventory_destroy(uint16_t entity_id);
 
 #endif

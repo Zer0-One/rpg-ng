@@ -4,9 +4,9 @@
 #include "entity.h"
 #include "htable.h"
 #include "log.h"
+#include "script.h"
 
-#include "component/dialogue.h"
-#include "component/inventory.h"
+#include "component/component.h"
 
 #define _RPGNG_STR(x) #x
 #define RPGNG_STR(x) _RPGNG_STR(x)
@@ -15,6 +15,7 @@ void print_usage(){
     printf("Usage: rpg-ng [-d] [-l logfile]\n\n");
     printf("Command-line options:\n");
     printf("\n\t-d\t\tEnables debug mode, increasing logging verbosity");
+    printf("\n\t-e [gamescript]\tThe main game script to execute on start");
     printf("\n\t-l [logfile]\tA logfile to which logs will be written");
     printf("\n\t-h\t\tPrints this help information");
     printf("\n\t-v\t\tPrints version information");
@@ -38,11 +39,15 @@ int main(int argc, char* argv[]){
 
     log_priority log_level;
     char* log_path = NULL;
+    char* mainscript_path = NULL;
 
-    while((opt = getopt(argc, argv, "dhvl:")) != -1){
+    while((opt = getopt(argc, argv, "de:hvl:")) != -1){
         switch(opt){
             case 'd':
                 log_level = LOG_DEBUG;
+                break;
+            case 'e':
+                mainscript_path = optarg;
                 break;
             case 'l':
                 log_path = optarg;
@@ -74,16 +79,25 @@ int main(int argc, char* argv[]){
     }
 
     // Initialize component subsystems
-    if(!inventory_init()){
-        _exit(-1);
-    }
-    if(!dialogue_init()){
+    if(!component_init()){
         _exit(-1);
     }
 
-    uint16_t e = entity_create("adoring-fan");
+    // Initialize Lua scripting subsystem
+    if(!script_init()){
+        _exit(-1);
+    }
 
-    inventory_create(e, NULL, 0);
+    if(mainscript_path == NULL){
+        _exit(-1);
+    }
+
+    // Run the main game script
+    script_run(mainscript_path);
+
+//    uint16_t e = entity_create("adoring-fan");
+
+//    inventory_create(e, NULL, 0);
 
     //entity_destroy(69);
 

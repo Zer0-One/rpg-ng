@@ -4,8 +4,31 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef struct Message {
+    // An ID which is unique across all messages in the dialogue.
+    uint16_t id;
+
+    // A condition which must be satisfied before the message can be delivered.
+    char* milestone;
+
+    // An action (probably a user-defined function in a game script) which
+    // occurs when this message is delivered.
+    char* action;
+
+    // A list of text messages, marked up with timing cues.
+    // The messages are separated to indicate that they should be rendered or
+    // handled separately. e.g, each one should appear in a new text box.
+    size_t text_count;
+    char* text;
+
+    // A list of IDs which are valid next-hops in the tree.
+    size_t next_count;
+    uint16_t* next;
+} Message;
+
 typedef struct Dialogue {
-    int placeholder;
+    size_t message_count;
+    Message* messages;
 } Dialogue;
 
 /**
