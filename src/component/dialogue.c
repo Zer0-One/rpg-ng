@@ -50,3 +50,7 @@ bool dialogue_create(uint16_t entity_id, const char* path){
         return false;
     }
 }
+
+bool dialogue_destroy(uint16_t entity_id){
+    return true;
+}

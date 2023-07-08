@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "htable.h"
 #include "log.h"
@@ -114,7 +115,7 @@ void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size){
                 }
             }
 
-            if(j == key_size - 1){
+            if(j == key_size){
                 return t->buckets[i].value;
             }
         }
@@ -261,7 +262,7 @@ int htable_remove(HashTable* t, const uint8_t* key, size_t key_size){
             }
 
             // Key found
-            if(j == key_size - 1){
+            if(j == key_size){
                 free(t->buckets[i].key);
                 t->buckets[i].key = NULL;
                 t->buckets[i].key_size = 0;
@@ -275,4 +276,40 @@ int htable_remove(HashTable* t, const uint8_t* key, size_t key_size){
     logmsg(LOG_WARN, "htable: Unable to remove mapping from table, key not found");
 
     return -2;
+}
+
+HTableKey* htable_get_keys(const HashTable* t, size_t* size){
+    if(t == NULL){
+        logmsg(LOG_WARN, "htable: Unable to get keys from NULL table");
+
+        return NULL;
+    }
+
+    HTableKey* ret = calloc(t->mapping_count, sizeof(HTableKey));
+
+    if(ret == NULL){
+        logmsg(LOG_ERR, "htable: Unable to create hash table key array, the system is out of memory");
+
+        _exit(-1);
+    }
+
+    size_t cnt = 0;
+    for(size_t i = 0; i < t->bucket_count; i++){
+        if(t->buckets[i].key != NULL){
+            ret[cnt].key_size = t->buckets[i].key_size;
+            ret[cnt].key = t->buckets[i].key;
+        }
+    }
+
+    *size = cnt;
+
+    return ret;
+}
+
+size_t htable_get_size(const HashTable* t){
+    return t->bucket_count;
+}
+
+size_t htable_get_mapping_size(const HashTable* t){
+    return t->mapping_count;
 }

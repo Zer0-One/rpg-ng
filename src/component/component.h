@@ -6,9 +6,19 @@
 typedef enum ComponentType {
     DIALOGUE,
     DIALOGUEWIDGET,
-    INVENTORY
+    INVENTORY,
+    SPRITE,
+    TRANSFORM
 } ComponentType;
 
 bool component_init();
+
+/**
+ * Removes all components associated with the given entity by calling their
+ * respective _destroy() functions.
+ *
+ * @return On success, returns true. On failure, returns false.
+ */
+bool component_cleanup(uint16_t entity_id);
 
 #endif

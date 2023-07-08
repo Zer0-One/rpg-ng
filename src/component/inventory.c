@@ -11,7 +11,7 @@
 #include "component.h"
 #include "inventory.h"
 
-ComponentType inventory_type = INVENTORY;
+const ComponentType inventory_component_type = INVENTORY;
 
 HashTable* items = NULL;
 
@@ -48,7 +48,7 @@ bool inventory_create(uint16_t entity_id, uint16_t* item_ids, size_t ids_size){
         return false;
     }
 
-    if(entity_has_component(entity_id, inventory_type)){
+    if(entity_has_component(entity_id, inventory_component_type)){
         logmsg(LOG_WARN, "inventory: Cannot create inventory for entity:%" PRIu16 ", entity already has inventory", entity_id);
 
         return false;
@@ -68,7 +68,7 @@ bool inventory_create(uint16_t entity_id, uint16_t* item_ids, size_t ids_size){
         }
     }
 
-    if(htable_add(e->components, (uint8_t*)&inventory_type, sizeof(inventory_type), inv) != 0){
+    if(htable_add(e->components, (uint8_t*)&inventory_component_type, sizeof(inventory_component_type), inv) != 0){
         logmsg(LOG_WARN, "inventory: Failed to map inventory in component table for entity:%" PRIu16, entity_id);
 
         free(inv);
@@ -84,23 +84,23 @@ bool inventory_destroy(uint16_t entity_id){
 
     Entity* e = entity_get(entity_id);
 
-    if(e == NULL){
+    if(!e){
         logmsg(LOG_WARN, "inventory: Unable to destroy inventory, failed to get entity:%" PRIu16, entity_id);
 
         return false;
     }
 
-    if(!entity_has_component(entity_id, inventory_type)){
+    if(!entity_has_component(entity_id, inventory_component_type)){
         logmsg(LOG_WARN, "inventory: Failed to destroy inventory, no inventory found for entity:%" PRIu16, entity_id);
 
         return false;
     }
 
-    Inventory* inv = entity_get_component(entity_id, inventory_type);
+    Inventory* inv = entity_get_component(entity_id, inventory_component_type);
 
     free(inv);
 
-    if(htable_remove(e->components, (uint8_t*)&inventory_type, sizeof(inventory_type)) != 0){
+    if(htable_remove(e->components, (uint8_t*)&inventory_component_type, sizeof(inventory_component_type)) != 0){
         logmsg(LOG_WARN, "inventory: Failed to remove inventory mapping from entity component table");
 
         return false;

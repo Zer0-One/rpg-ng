@@ -56,14 +56,14 @@ uint16_t entity_create(const char* name){
     }
 
     if(name == NULL){
-        logmsg(LOG_WARN, "entity: Cannot create entity:%" PRIu16 " with NULL name", entity_next_id);
+        logmsg(LOG_WARN, "entity: Cannot create entity[%" PRIu16 "] with NULL name", entity_next_id);
 
         return -1;
     }
 
     Entity* e = calloc(1, sizeof(Entity));
 
-    if(e == NULL){
+    if(!e){
         logmsg(LOG_WARN, "entity: Cannot allocate new entity with name '%s', the system is out of memory", name);
 
         return -1;
@@ -73,21 +73,31 @@ uint16_t entity_create(const char* name){
 
     e->id = entity_next_id;
 
-    if(htable_add(entities, (uint8_t*)&e->id, sizeof(e->id), e) != 0){
-        logmsg(LOG_WARN, "entity(%" PRIu16 "): Unable to map newly created entity in entity table", e->id);
+    e->components = htable_create(16);
+
+    if(!e->components){
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Failed to create component table, the system is out of memory", e->id, e->name);
 
         free(e);
 
         return -1;
     }
 
-    if(htable_add(entities_str, name, strlen(name), e) != 0){
-        logmsg(LOG_WARN, "entity(%" PRIu16 "): Unable to map newly created entity in entity string table", e->id);
+    if(htable_add(entities, (uint8_t*)&e->id, sizeof(e->id), e) != 0){
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Unable to map newly created entity in entity table", e->id, e->name);
 
-        if(htable_remove(entities, (uint8_t*)&e->id, sizeof(e->id)) == -2){
+        free(e);
+
+        return -1;
+    }
+
+    if(htable_add(entities_str, (uint8_t*)name, strlen(name), e) != 0){
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Unable to map newly created entity in entity string table", e->id, e->name);
+
+        if(htable_remove(entities, (uint8_t*)&e->id, sizeof(e->id)) != 0){
             // We just added that mapping. If we can't remove it, something's really fucked.
-            logmsg(LOG_ERR, "entity(%" PRIu16 "): Failed to remove mapping from entity table", e->id);
-            logmsg(LOG_ERR, "entity(%" PRIu16 "): Something's fucked", e->id);
+            logmsg(LOG_ERR, "entity[%" PRIu16 "]('%s'): Failed to remove mapping from entity table", e->id, e->name);
+            logmsg(LOG_ERR, "entity[%" PRIu16 "]('%s'): Something's fucked", e->id, e->name);
 
             _exit(-1);
         }
@@ -103,31 +113,48 @@ uint16_t entity_create(const char* name){
 }
 
 bool entity_destroy(uint16_t id){
+    Entity* e = entity_get(id);
+
+    if(!e){
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]: Unable to destroy entity, not found in entity table", id);
+
+        return false;
+    }
+
+    if(!component_cleanup(id)){
+        _exit(-1);
+    }
+
     if(htable_remove(entities, (uint8_t*)&id, sizeof(id)) != 0){
-        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to remove entity, not found in entity table", id);
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Failed to remove entity, not found in entity table", id, e->name);
 
         return -1;
     }
 
-    // Clean up any associated components
-    inventory_destroy(id);
+    if(htable_remove(entities, (uint8_t*)&id, sizeof(id)) != 0){
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Failed to remove entity, not found in entity table", id, e->name);
+
+        return -1;
+    }
 }
 
 Entity* entity_get(uint16_t id){
     Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
 
-    if(e == NULL){
-        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to get entity, not found in entity table", id);
+    if(!e){
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]: Failed to get entity, not found in entity table", id);
 
         return NULL;
     }
+
+    return e;
 }
 
 bool entity_has_component(uint16_t id, ComponentType type){
     Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
 
-    if(e == NULL){
-        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to check if entity has component, entity not mapped in entity table", id);
+    if(!e){
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]: Failed to check if entity has component, entity not mapped in entity table", id);
 
         return false;
     }
@@ -140,10 +167,10 @@ bool entity_has_component(uint16_t id, ComponentType type){
 }
 
 void* entity_get_component(uint16_t id, ComponentType type){
-    logmsg(LOG_DEBUG, "entity(%" PRIu16 "): Attempting to get component %d from entity", type);
+    logmsg(LOG_DEBUG, "entity[%" PRIu16 "]: Attempting to get component %d from entity", type);
 
     if(!entity_has_component(id, type)){
-        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to get component, entity does not have a component of type %d", type);
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]: Failed to get component, entity does not have a component of type %d", type);
 
         return NULL;
     }
@@ -151,7 +178,7 @@ void* entity_get_component(uint16_t id, ComponentType type){
     Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
 
     if(e == NULL){
-        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to get component, entity not mapped in entity table", id);
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]: Failed to get component, entity not mapped in entity table", id);
 
         return NULL;
     }
@@ -159,7 +186,7 @@ void* entity_get_component(uint16_t id, ComponentType type){
     void* obj = htable_lookup(e->components, (uint8_t*)&type, sizeof(type)); 
 
     if(obj == NULL){
-        logmsg(LOG_WARN, "entity(%" PRIu16 "): Failed to get component, requested component not mapped to entity", id);
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]: Failed to get component, requested component not mapped to entity", id);
 
         return NULL;
     }

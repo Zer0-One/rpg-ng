@@ -8,8 +8,8 @@
 typedef struct HashTable HashTable;
 
 typedef struct HTableKey {
-    const size_t key_size;
-    const uint8_t key[];
+    size_t key_size;
+    uint8_t* key;
 } HTableKey;
 
 typedef struct HTableMapping {
@@ -93,7 +93,8 @@ void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size);
  * @param[out] size The size of the returned array.
  *
  * @return A dynamically-allocated array of hash table keys. The caller is
- * responsible for freeing this array.
+ * responsible for freeing this array. The keys in the returned array are
+ * pointers to the keys in the table. Do not modify these values.
  */
 HTableKey* htable_get_keys(const HashTable* t, size_t* size);
 
@@ -112,5 +113,15 @@ HTableKey* htable_get_keys(const HashTable* t, size_t* size);
  * responsible for freeing this array.
  */
 HTableMapping* htable_get_mappings(const HashTable* t, size_t* size);
+
+/**
+ * Returns the number of buckets present in the table.
+ */
+size_t htable_get_size(const HashTable* t);
+
+/**
+ * Returns the number of mappings present in the table.
+ */
+size_t htable_get_mapping_size(const HashTable* t);
 
 #endif

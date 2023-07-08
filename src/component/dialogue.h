@@ -54,6 +54,6 @@ bool dialogue_create(uint16_t entity_id, const char* path);
  * Destroys the dialogue associated with the given entity, and removes the
  * mapping from the dialogue table.
  */
-void dialogue_destroy(uint16_t entity_id);
+bool dialogue_destroy(uint16_t entity_id);
 
 #endif

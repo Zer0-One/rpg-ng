@@ -7,6 +7,8 @@
 #include "script.h"
 
 #include "component/component.h"
+#include "component/transform.h"
+#include "component/sprite.h"
 
 #define _RPGNG_STR(x) #x
 #define RPGNG_STR(x) _RPGNG_STR(x)
@@ -88,12 +90,36 @@ int main(int argc, char* argv[]){
         _exit(-1);
     }
 
-    if(mainscript_path == NULL){
+    //if(mainscript_path == NULL){
+    //    _exit(-1);
+    //}
+
+    // Run the main game script
+    //script_run(mainscript_path);
+
+    uint16_t e = entity_create("trump");
+
+    if(!transform_create(e)){
+        logmsg(LOG_ERR, "ZOMG THE TRANSFORM IS BROKEN");
         _exit(-1);
     }
 
-    // Run the main game script
-    script_run(mainscript_path);
+    if(!sprite_create(e, "/home/zero-one/would.jpg")){
+        logmsg(LOG_ERR, "ZOMG THE SPRITE IS BROKEN");
+        _exit(-1);
+    }
+
+    if(!transform_destroy(e)){
+        logmsg(LOG_ERR, "FAILED TO DESTROY TRANSFORM");
+
+        _exit(-1);
+    }
+
+    if(!sprite_destroy(e)){
+        logmsg(LOG_ERR, "FAILED TO DESTROY SPRITE");
+
+        _exit(-1);
+    }
 
 //    uint16_t e = entity_create("adoring-fan");
 

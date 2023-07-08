@@ -16,6 +16,8 @@ option(BUILD_SHARED_LIBS "Build as a shared library" ON)
 # To enable debug builds, use -DCMAKE_BUILD_TYPE=Debug
 
 find_package(Lua REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2_image CONFIG REQUIRED)
 
 add_executable(rpgng)
 target_sources(rpgng
@@ -28,6 +30,8 @@ target_sources(rpgng
         "src/component/component.c"
         "src/component/dialogue.c"
         "src/component/inventory.c"
+        "src/component/sprite.c"
+        "src/component/transform.c"
 )
 
 target_compile_definitions(rpgng PUBLIC
@@ -45,6 +49,8 @@ target_include_directories(rpgng SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
 
 # Set link libraries
 target_link_libraries(rpgng ${LUA_LIBRARIES})
+target_link_libraries(rpgng SDL2::SDL2)
+target_link_libraries(rpgng SDL2_image::SDL2_image)
 
 #if(WIN32)
 #    target_link_libraries(rpgng cygwin1.dll)
@@ -57,7 +63,7 @@ set(CMAKE_C_FLAGS_RELEASE "-O2")
 if(CYGWIN)
     set(CMAKE_C_FLAGS_DEBUG "-O0 -g3")
 else()
-    set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
+    set(CMAKE_C_FLAGS_DEBUG "-O0 -g3 -pedantic-errors -fsanitize=address -fsanitize=undefined")
 endif()
 
 # If tests are enabled, make tests

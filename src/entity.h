@@ -40,17 +40,14 @@ uint16_t entity_create(const char* name);
 bool entity_destroy(uint16_t entity_id);
 
 /**
- * Performs a lookup for the given entity, and returns a copy if found.
+ * Performs a lookup for the given entity, and returns a pointer to it, if found.
  *
  * @param entity_id An entity ID.
- *
- * @return On success, returns a dynamically-allocated copy of an Entity with
- * the given ID. The user must free the returned Entity.
  */
 Entity* entity_get(uint16_t entity_id);
 
 /**
- * Performs a lookup for the given entity, and returns a copy if found.
+ * Performs a lookup for the given entity, and returns a pointer to it, if found.
  *
  * @param name An entity name.
  *
