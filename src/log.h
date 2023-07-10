@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-typedef enum LOG_PRIORITY{
+typedef enum LOG_PRIORITY {
     LOG_DEBUG,
     LOG_INFO,
     LOG_WARN,

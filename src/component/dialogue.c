@@ -11,10 +11,10 @@
 
 HashTable* dialogues = NULL;
 
-bool dialogue_init(){
+bool dialogue_init() {
     logmsg(LOG_DEBUG, "dialogue: Attempting to initialize dialogue");
 
-    if(dialogues != NULL){
+    if(dialogues != NULL) {
         logmsg(LOG_WARN, "dialogue: Init failed, this component was already initialized");
 
         return false;
@@ -24,7 +24,7 @@ bool dialogue_init(){
 
     dialogues = htable_create(16);
 
-    if(dialogues == NULL){
+    if(dialogues == NULL) {
         logmsg(LOG_WARN, "dialogue: Could not allocate dialogue table, the system is out of memory");
 
         return false;
@@ -33,10 +33,10 @@ bool dialogue_init(){
     return true;
 }
 
-bool dialogue_create(uint16_t entity_id, const char* path){
+bool dialogue_create(uint16_t entity_id, const char* path) {
     logmsg(LOG_DEBUG, "dialogue: Creating new dialogue for entity:%" PRIu16, entity_id);
 
-    if(dialogues == NULL){
+    if(dialogues == NULL) {
         logmsg(LOG_ERR, "dialogue: Attempted to create dialogue, but dialogue table does not exist");
 
         _exit(-1);
@@ -44,13 +44,13 @@ bool dialogue_create(uint16_t entity_id, const char* path){
 
     Dialogue* dlg = calloc(1, sizeof(Dialogue));
 
-    if(dlg == NULL){
+    if(dlg == NULL) {
         logmsg(LOG_WARN, "dialogue: Failed to allocate new dialogue, the system is out of memory");
 
         return false;
     }
 }
 
-bool dialogue_destroy(uint16_t entity_id){
+bool dialogue_destroy(uint16_t entity_id) {
     return true;
 }
