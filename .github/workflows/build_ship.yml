@@ -74,7 +74,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  build-windows-cygwin-latest-gcc:
+  build-windows-latest-msvc:
     runs-on: windows-latest
     defaults:
       run:
@@ -86,13 +86,11 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Install Cygwin
-        uses: cygwin/cygwin-install-action@v3
-        with:
-          packages: cmake gcc-core clang doxygen graphviz libjansson-devel liblua-devel libSDL2-devel libSDL2_image-devel
+      - name: Install Dependencies
+        run: vcpkg install jansson:x64-windows lua:x64-windows sdl2:x64-windows sdl2-image:x64-windows
 
       - name: Configure CMake
-        run: cmake -DCMAKE_BUILD_TYPE=Debug .
+        run: cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake .
 
       - name: Build
         run: cmake --build . --config Debug
@@ -103,13 +101,31 @@ jobs:
       - name: Create rpgng Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: windows-latest-cygwin-rpgng-master
+          name: windows-latest-msvc-rpgng-master
           path: bin/*
           if-no-files-found: error
           retention-days: 1
 
+  Formatting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install clang-format-15
+
+      - name: Run formatting
+        run: find . -name '*.h' -o -name '*.c' | xargs clang-format-15 -style=file -i
+
+      - name: Check formatting
+        run: git diff --exit-code
+
   Pages:
-    needs: [build-linux, build-windows-cygwin-latest-gcc, build-macos-latest-clang]
+    needs: [build-linux, build-windows-latest-msvc, build-macos-latest-clang]
 
     permissions:
       pages: write

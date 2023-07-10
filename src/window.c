@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include <stdbool.h>
 
 #include <SDL2/SDL.h>

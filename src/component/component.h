@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #ifndef RPGNG_COMPONENT
 #define RPGNG_COMPONENT
 

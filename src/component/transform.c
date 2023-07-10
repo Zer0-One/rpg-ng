@@ -1,6 +1,13 @@
+// SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include <inttypes.h>
 #include <stdlib.h>
+
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 
 #include "../entity.h"
 #include "../log.h"

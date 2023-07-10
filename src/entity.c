@@ -1,9 +1,16 @@
+// SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 
 #include "entity.h"
 #include "htable.h"
@@ -126,16 +133,20 @@ bool entity_destroy(uint16_t id) {
     }
 
     if(htable_remove(entities, (uint8_t*)&id, sizeof(id)) != 0) {
-        logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Failed to remove entity, not found in entity table", id, e->name);
+        logmsg(LOG_ERR, "entity[%" PRIu16 "]('%s'): Unable to destroy entity, failed to remove mapping in entity table", id, e->name);
 
-        return -1;
+        _exit(-1);
     }
 
-    if(htable_remove(entities, (uint8_t*)&id, sizeof(id)) != 0) {
-        logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Failed to remove entity, not found in entity table", id, e->name);
+    if(htable_remove(entities_str, (uint8_t*)e->name, strlen(e->name)) != 0) {
+        logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Unable to destroy entity, failed to remove mapping in entity_str table", id, e->name);
 
-        return -1;
+        _exit(-1);
     }
+
+    free(e);
+
+    return true;
 }
 
 Entity* entity_get(uint16_t id) {

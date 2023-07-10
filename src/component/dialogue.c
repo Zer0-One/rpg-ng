@@ -1,8 +1,15 @@
+// SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 
 #include "../htable.h"
 #include "../log.h"
@@ -49,6 +56,8 @@ bool dialogue_create(uint16_t entity_id, const char* path) {
 
         return false;
     }
+
+    return true;
 }
 
 bool dialogue_destroy(uint16_t entity_id) {

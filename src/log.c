@@ -1,8 +1,14 @@
+// SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 #include <time.h>
 
 #include "log.h"
@@ -39,10 +45,18 @@ void logmsg(log_priority loglevel, char* msg, ...) {
     va_list args;
     va_start(args, msg);
 
+    time_t cur_time;
+
+#ifdef _MSC_VER
+    time(&cur_time);
+#else
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
 
-    struct tm* bd_time = localtime(&ts.tv_sec);
+    cur_time = ts.tv_sec;
+#endif
+
+    struct tm* bd_time = localtime(&cur_time);
 
     char date_buffer[100];
     strftime(date_buffer, 100, "[%F %T]", bd_time);

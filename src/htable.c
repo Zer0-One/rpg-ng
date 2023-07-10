@@ -1,7 +1,14 @@
+// SPDX-FileCopyrightText: 2023 David Zero <zero-one@zer0-one.net>
+//
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 
 #include "htable.h"
 #include "log.h"
@@ -226,7 +233,7 @@ int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value) {
         return -3;
     }
 
-    htable_add(t, key, key_size, value);
+    return htable_add(t, key, key_size, value);
 }
 
 int htable_remove(HashTable* t, const uint8_t* key, size_t key_size) {
