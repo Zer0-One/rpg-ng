@@ -18,6 +18,7 @@ option(BUILD_SHARED_LIBS "Build as a shared library" ON)
 find_package(Lua REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
+find_package(Jansson REQUIRED)
 
 add_executable(rpgng)
 target_sources(rpgng
@@ -27,6 +28,7 @@ target_sources(rpgng
         "src/log.c"
         "src/main.c"
         "src/script.c"
+        "src/window.c"
         "src/component/component.c"
         "src/component/dialogue.c"
         "src/component/inventory.c"

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <SDL2/SDL.h>
+
 #include "entity.h"
 #include "htable.h"
 #include "log.h"
@@ -14,7 +16,7 @@
 #define RPGNG_STR(x) _RPGNG_STR(x)
 
 void print_usage(){
-    printf("Usage: rpg-ng [-d] [-l logfile]\n\n");
+    printf("Usage: rpgng [-d] [-l logfile]\n\n");
     printf("Command-line options:\n");
     printf("\n\t-d\t\tEnables debug mode, increasing logging verbosity");
     printf("\n\t-e [gamescript]\tThe main game script to execute on start");
@@ -30,7 +32,7 @@ const unsigned int VERSION_PATCH = RPGNG_VERSION_PATCH;
 const char* const VERSION = RPGNG_STR(RPGNG_VERSION);
 
 void print_versions(){
-    printf("rpg-ng version %s\n\n", RPGNG_STR(RPGNG_VERSION));
+    printf("rpgng version %s\n\n", RPGNG_STR(RPGNG_VERSION));
     printf("Built with support for: \n");
     printf("\tSuper Cool Lib 1.5.2\n");
     printf("\tOther Lib 5.3\n");
@@ -71,9 +73,20 @@ int main(int argc, char* argv[]){
         _exit(-1);
     }
 
-    logmsg(LOG_INFO, "rpg-ng initializing");
+    logmsg(LOG_INFO, "rpgng initializing");
+
+    // Initialize SDL
+    logmsg(LOG_DEBUG, "main: Initializing SDL");
+
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0){
+        logmsg(LOG_ERR, "main: Failed to initialize SDL: '%s'", SDL_GetError());
+
+        _exit(-1);
+    }
 
     // Initialize entities
+    logmsg(LOG_DEBUG, "main: Initializing entity system");
+
     if(!entity_init()){
         logmsg(LOG_ERR, "Failed to initialize entity subsystem");
 
@@ -81,11 +94,15 @@ int main(int argc, char* argv[]){
     }
 
     // Initialize component subsystems
+    logmsg(LOG_DEBUG, "main: Initializing components");
+
     if(!component_init()){
         _exit(-1);
     }
 
     // Initialize Lua scripting subsystem
+    logmsg(LOG_DEBUG, "main: Initializing scripting interface");
+
     if(!script_init()){
         _exit(-1);
     }
