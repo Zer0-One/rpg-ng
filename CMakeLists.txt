@@ -55,14 +55,10 @@ target_include_directories(rpgng SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
 
 # Set link libraries
 target_link_libraries(rpgng ${LUA_LIBRARIES})
-target_link_libraries(rpgng SDL2::SDL2)
 target_link_libraries(rpgng SDL2::SDL2main)
+target_link_libraries(rpgng SDL2::SDL2)
 target_link_libraries(rpgng SDL2_image::SDL2_image)
 target_link_libraries(rpgng jansson::jansson)
-
-#if(WIN32)
-#    target_link_libraries(rpgng cygwin1.dll)
-#endif()
 
 # Set compiler/language options
 set(CMAKE_C_STANDARD 17)

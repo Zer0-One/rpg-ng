@@ -10,7 +10,6 @@
  * looking at any POSIX sources, so hopefully it behaves correctly.
  */
 
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -50,7 +49,9 @@ int getopt(int argc, char* argv[], const char* optstring) {
                 // Argument is attached to option without space
                 if(argv[optind][2] != '\0') {
                     optarg = &argv[optind][2];
-                } else if(optind == argc - 1) {
+                }
+                // Option is the last in the list, but we're out of arguments
+                else if(optind == argc - 1) {
                     printf("%s: option requires an argument -- '%c'\n", argv[0], argv[optind][1]);
 
                     if(optstring[0] == ':') {

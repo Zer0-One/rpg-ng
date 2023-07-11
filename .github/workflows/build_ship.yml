@@ -28,6 +28,10 @@ jobs:
     - name: Install Dependencies
       run: sudo apt-get install -y libjansson-dev libsdl2-dev libsdl2-image-dev lua5.4-dev 
 
+    # Remove this step when the github-hosted runner has an up-to-date SDL2
+    - name: Install newer SDL cmake config
+      run: sudo mkdir /usr/lib/x86_64-linux-gnu/cmake/SDL2_image/ && sudo wget -O /usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake zer0-one.net/sdl2-config.cmake && sudo wget -O /usr/lib/x86_64-linux-gnu/cmake/SDL2_image/sdl2_image-config.cmake zer0-one.net/sdl2_image-config.cmake
+
     - name: Configure CMake
       run: cmake -DCMAKE_BUILD_TYPE=Debug .
 
@@ -143,6 +147,10 @@ jobs:
 
       - name: Checkout source
         uses: actions/checkout@v3
+
+      # Remove this step when the github-hosted runner has an up-to-date SDL2
+      - name: Install newer SDL cmake config
+        run: sudo mkdir /usr/lib/x86_64-linux-gnu/cmake/SDL2_image/ && sudo wget -O /usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake zer0-one.net/sdl2-config.cmake && sudo wget -O /usr/lib/x86_64-linux-gnu/cmake/SDL2_image/sdl2_image-config.cmake zer0-one.net/sdl2_image-config.cmake
 
       - name: Configure CMake
         run: cmake -DCMAKE_BUILD_TYPE=Release -DRPGNG_DOCS=ON .
