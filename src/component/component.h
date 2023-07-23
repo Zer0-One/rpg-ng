@@ -7,6 +7,8 @@
 
 #include <stdbool.h>
 
+#define SLOT_DEFAULT_SIZE 8
+
 typedef enum ComponentType {
     DIALOGUE,
     DIALOGUEWIDGET,

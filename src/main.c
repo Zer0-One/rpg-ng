@@ -126,14 +126,14 @@ int main(int argc, char* argv[]) {
     // Run the main game script
     // script_run(mainscript_path);
 
-    uint16_t e = entity_create("trump");
+    uint16_t e = entity_create("kitty");
 
     if(!transform_create(e)) {
         logmsg(LOG_ERR, "ZOMG THE TRANSFORM IS BROKEN");
         _exit(-1);
     }
 
-    if(!sprite_create(e, "/home/zero-one/would.jpg")) {
+    if(!sprite_create(e, "/home/zero-one/kitten.jpg")) {
         logmsg(LOG_ERR, "ZOMG THE SPRITE IS BROKEN");
         _exit(-1);
     }

@@ -4,6 +4,7 @@
 
 #include <inttypes.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -16,6 +17,111 @@
 #include "transform.h"
 
 const ComponentType transform_component_type = TRANSFORM;
+
+struct Transform {
+    int pos_x;
+    int pos_y;
+
+    double rotation;
+
+    double scale;
+
+    TransformCallbackList cb_list;
+};
+
+// Signals
+
+const char* transform_signal_type_str[] = {
+    "translate",
+    "rotate",
+    "scale",
+};
+
+bool transform_regcb(Transform* t, TransformSignalType type, transform_cb_t cb) {
+    logmsg(LOG_DEBUG, "component(transform): Attempting to register callback for signal['%s']", transform_signal_type_str[type]);
+
+    if(!cb) {
+        logmsg(LOG_WARN, "component(transform): Unable to register NULL callback");
+
+        return false;
+    }
+
+    if(!t) {
+        logmsg(LOG_WARN, "component(transform): Unable to register callback for NULL component");
+
+        return false;
+    }
+
+    // If the array isn't yet initialized, do that now
+    if(!t->cb_list.cb) {
+        t->cb_list.cb = calloc(SLOT_DEFAULT_SIZE, sizeof(TransformCallback));
+
+        if(!t->cb_list.cb) {
+            logmsg(LOG_WARN, "component(transform): Failed to initialize callback array, the system is out of memory");
+
+            return false;
+        }
+    }
+
+    // If the array is full, double the size
+    if(t->cb_list.size == t->cb_list.count) {
+        TransformCallback* tmp = realloc(t->cb_list.cb, t->cb_list.size * 2 * sizeof(TransformCallback));
+
+        if(!tmp) {
+            logmsg(LOG_WARN, "component(transform): Failed to resize callback array, the system is out of memory");
+
+            return false;
+        }
+
+        // Initialize the new memory so that we can find empty slots correctly
+        memset(&tmp[t->cb_list.size], 0, t->cb_list.size * sizeof(TransformCallback));
+
+        t->cb_list.size *= 2;
+    }
+
+    // Add the callback
+    for(size_t i = 0; i < t->cb_list.size; i++) {
+        if(t->cb_list.cb[i].cb == NULL) {
+            t->cb_list.cb[i].cb = cb;
+            t->cb_list.cb[i].type = type;
+
+            t->cb_list.count++;
+
+            return true;
+        }
+    }
+
+    logmsg(LOG_ERR, "component(transform): Failed to register callback for signal['%s'], callback array isn't full, but a free slot was never found", transform_signal_type_str[type]);
+
+    _exit(-1);
+}
+
+bool transform_unregcb_translate(Transform* t, transform_cb_t cb) {
+    logmsg(LOG_DEBUG, "component(transform): Attempting to unregister callback (%p)", cb);
+
+    for(size_t i = 0; i < t->cb_list.size; i++) {
+        if(t->cb_list.cb[i].cb == cb) {
+            t->cb_list.cb[i].cb = NULL;
+            t->cb_list.cb[i].type = 0;
+
+            t->cb_list.count--;
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void transform_signal(Transform* t, TransformSignalType type, TransformSignalArgs args) {
+    for(size_t i = 0; i < t->cb_list.count; i++) {
+        if(t->cb_list.cb[i].type == type) {
+            t->cb_list.cb[i].cb(args);
+        }
+    }
+}
+
+// Component operations
 
 bool transform_create(uint16_t entity_id) {
     logmsg(LOG_DEBUG, "component(transform): Attempting to create new transform for entity[%" PRIu16 "]", entity_id);
@@ -83,35 +189,100 @@ bool transform_destroy(uint16_t entity_id) {
     return true;
 }
 
-void transform_set_pos(Transform* t, int x, int y) {
-    t->pos_x = x;
-    t->pos_y = y;
-}
-
 void transform_translate(Transform* t, int x, int y) {
+    int x_old = t->pos_x;
+    int y_old = t->pos_y;
+
     t->pos_x += x;
     t->pos_y += y;
+
+    TransformSignalArgs args = {x_old, y_old, t->pos_x, t->pos_y};
+
+    transform_signal(t, TRANSLATE, args);
+}
+
+void transform_translate_set(Transform* t, int x, int y) {
+    int x_old = t->pos_x;
+    int y_old = t->pos_y;
+
+    t->pos_x = x;
+    t->pos_y = y;
+
+    TransformSignalArgs args = {x_old, y_old, t->pos_x, t->pos_y};
+
+    transform_signal(t, TRANSLATE, args);
 }
 
 void transform_translate_reset(Transform* t) {
+    int x_old = t->pos_x;
+    int y_old = t->pos_y;
+
     t->pos_x = 0;
     t->pos_y = 0;
+
+    TransformSignalArgs args = {x_old, y_old, t->pos_x, t->pos_y};
+
+    transform_signal(t, TRANSLATE, args);
 }
 
 void transform_rotate(Transform* t, double rotation) {
+    double rotation_old = t->rotation;
+
     t->rotation += rotation;
+
+    TransformSignalArgs args = {rotation_old, t->rotation};
+
+    transform_signal(t, ROTATE, args);
+}
+
+void transform_rotate_set(Transform* t, double rotation) {
+    double rotation_old = t->rotation;
+
+    t->rotation = rotation;
+
+    TransformSignalArgs args = {rotation_old, t->rotation};
+
+    transform_signal(t, ROTATE, args);
 }
 
 void transform_rotate_reset(Transform* t) {
+    double rotation_old = t->rotation;
+
     t->rotation = 0;
+
+    TransformSignalArgs args = {rotation_old, t->rotation};
+
+    transform_signal(t, ROTATE, args);
 }
 
 void transform_scale(Transform* t, double scale) {
+    double scale_old = t->scale;
+
     t->scale += scale;
+
+    TransformSignalArgs args = {scale_old, t->scale};
+
+    transform_signal(t, SCALE, args);
+}
+
+void transform_scale_set(Transform* t, double scale) {
+    double scale_old = t->scale;
+
+    t->scale = scale;
+
+    TransformSignalArgs args = {scale_old, t->scale};
+
+    transform_signal(t, SCALE, args);
 }
 
 void transform_scale_reset(Transform* t) {
+    double scale_old = t->scale;
+
     t->scale = 0;
+
+    TransformSignalArgs args = {scale_old, t->scale};
+
+    transform_signal(t, SCALE, args);
 }
 
 int transform_get_pos_x(Transform* t) {
