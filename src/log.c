@@ -18,7 +18,7 @@ char* log_file_path = NULL;
 
 log_priority log_level = LOG_INFO;
 
-const char *log_text[] = {
+const char* log_prio_str[] = {
     [LOG_DEBUG] = "DEBUG",
     [LOG_INFO] = "INFO",
     [LOG_WARN] = "WARNING",
@@ -69,9 +69,9 @@ void logmsg(log_priority loglevel, char* msg, ...) {
     char date_buffer[100];
     strftime(date_buffer, 100, "[%F %T]", bd_time);
 
-    printf("%s %s ", date_buffer, log_text[loglevel]);
+    printf("%s %s ", date_buffer, log_prio_str[loglevel]);
     if (log_file != NULL)
-    	    fprintf(log_file, "%s %s ", date_buffer, log_text[loglevel]);
+        fprintf(log_file, "%s %s ", date_buffer, log_prio_str[loglevel]);
 
     vprintf(msg, args);
     printf("\n");
