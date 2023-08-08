@@ -18,6 +18,14 @@ char* log_file_path = NULL;
 
 log_priority log_level = LOG_INFO;
 
+const char *log_text[] = {
+    [LOG_DEBUG] = "DEBUG",
+    [LOG_INFO] = "INFO",
+    [LOG_WARN] = "WARNING",
+    [LOG_ERR] = "ERROR",
+    [LOG_CRIT] = "CRITICAL",
+};
+
 int log_init(log_priority level, char* path) {
     if(path != NULL) {
         FILE* handle = fopen(path, "ab");
@@ -61,37 +69,9 @@ void logmsg(log_priority loglevel, char* msg, ...) {
     char date_buffer[100];
     strftime(date_buffer, 100, "[%F %T]", bd_time);
 
-    if(loglevel == LOG_CRIT) {
-        printf("%s CRITICAL ", date_buffer);
-
-        if(log_file != NULL) {
-            fprintf(log_file, "%s CRITICAL ", date_buffer);
-        }
-    } else if(loglevel == LOG_DEBUG) {
-        printf("%s DEBUG ", date_buffer);
-
-        if(log_file != NULL) {
-            fprintf(log_file, "%s DEBUG ", date_buffer);
-        }
-    } else if(loglevel == LOG_ERR) {
-        printf("%s ERROR ", date_buffer);
-
-        if(log_file != NULL) {
-            fprintf(log_file, "%s ERROR ", date_buffer);
-        }
-    } else if(loglevel == LOG_INFO) {
-        printf("%s INFO ", date_buffer);
-
-        if(log_file != NULL) {
-            fprintf(log_file, "%s INFO ", date_buffer);
-        }
-    } else if(loglevel == LOG_WARN) {
-        printf("%s WARNING ", date_buffer);
-
-        if(log_file != NULL) {
-            fprintf(log_file, "%s WARNING ", date_buffer);
-        }
-    }
+    printf("%s %s ", date_buffer, log_text[loglevel]);
+    if (log_file != NULL)
+    	    fprintf(log_file, "%s %s ", date_buffer, log_text[loglevel]);
 
     vprintf(msg, args);
     printf("\n");
