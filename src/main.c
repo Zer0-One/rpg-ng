@@ -115,9 +115,7 @@ int main(int argc, char* argv[]) {
     // Initialize Lua scripting subsystem
     logmsg(LOG_DEBUG, "main: Initializing scripting interface");
 
-    if(!script_init()) {
-        _exit(-1);
-    }
+    script_init();
 
     // if(mainscript_path == NULL){
     //     _exit(-1);
@@ -149,6 +147,10 @@ int main(int argc, char* argv[]) {
 
         _exit(-1);
     }
+
+    script_foo();
+
+    script_cleanup();
 
     //    uint16_t e = entity_create("adoring-fan");
 

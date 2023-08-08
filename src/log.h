@@ -8,10 +8,15 @@
 #include <stdio.h>
 
 typedef enum LOG_PRIORITY {
+    // Debug information
     LOG_DEBUG,
+    // Nothing has gone wrong, but the user should probably know something
     LOG_INFO,
+    // Error, but it's recoverable
     LOG_WARN,
+    // Error, and it's not recoverable
     LOG_ERR,
+    // Call the fire department
     LOG_CRIT,
 } log_priority;
 
@@ -34,6 +39,6 @@ void logmsg(log_priority loglevel, char* msg, ...);
 /**
  * Closes the open log file, if any.
  */
-int log_close();
+int log_close(void);
 
 #endif

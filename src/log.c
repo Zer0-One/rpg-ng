@@ -106,7 +106,7 @@ void logmsg(log_priority loglevel, char* msg, ...) {
     fflush(NULL);
 }
 
-int log_close() {
+int log_close(void) {
     if(log_file != NULL) {
         if(fclose(log_file) != 0) {
             logmsg(LOG_ERR, "log: Unable to close logfile '%s', %s", log_file_path, strerror(errno));

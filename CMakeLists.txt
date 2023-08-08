@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.23.2)
 
 project(rpg-ng VERSION 0.1.0 DESCRIPTION "A small and simple 2D RPG engine")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 # Set output directory
@@ -15,7 +17,7 @@ option(RPGNG_DOCS "Enable compiling documentation" OFF)
 option(BUILD_SHARED_LIBS "Build as a shared library" ON)
 # To enable debug builds, use -DCMAKE_BUILD_TYPE=Debug
 
-find_package(Lua REQUIRED)
+find_package(Python REQUIRED COMPONENTS Development)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
 if(WIN32)
@@ -47,14 +49,11 @@ target_compile_definitions(rpgng PUBLIC
     RPGNG_VERSION="${PROJECT_VERSION}"
 )
 
-# Set include directories
-target_include_directories(rpgng SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
-
 # Set library version
 #set_target_properties(rpgng PROPERTIES VERSION ${PROJECT_VERSION})
 
 # Set link libraries
-target_link_libraries(rpgng ${LUA_LIBRARIES})
+target_link_libraries(rpgng Python::Python)
 target_link_libraries(rpgng SDL2::SDL2main)
 target_link_libraries(rpgng SDL2::SDL2)
 target_link_libraries(rpgng SDL2_image::SDL2_image)

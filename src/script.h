@@ -9,16 +9,24 @@
 
 /**
  * Initializes the scripting subsystem.
- *
- * @return True on success.
- * @return False on failure.
  */
-bool script_init();
+void script_init();
 
 /**
- * Runs the Lua script at the given path.
+ * Shuts down all initialized interpreters, and frees all associated memory.
  *
- * @param path A path to a Lua 5.4 script.
+ * @return True on success.
+ * @return False if an error was encountered.
+ */
+bool script_cleanup();
+
+// Foos the bar
+bool script_foo();
+
+/**
+ * Runs the Python script at the given path.
+ *
+ * @param path A path to a Python script.
  *
  * @return True if the entire script was successfully executed.
  * @return False if any error was encountered.
