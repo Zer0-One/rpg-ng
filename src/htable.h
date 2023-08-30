@@ -57,7 +57,7 @@ void htable_destroy(HashTable* t);
  * @return If the given key already exists in the table, this function returns -2.
  * @return If the system was out of memory, this function returns -3.
  */
-int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value);
+int htable_add(HashTable* t, uint8_t const* key, size_t key_size, void* value);
 
 /**
  * Removes the mapping for the given key from the table. This function will not
@@ -71,7 +71,7 @@ int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value);
  * @return If an invalid argument was given, this function returns -1.
  * @return If the key was not present in the table, this function returns -2.
  */
-int htable_remove(HashTable* t, const uint8_t* key, size_t key_size);
+int htable_remove(HashTable* t, uint8_t const* key, size_t key_size);
 
 /**
  * Performs a lookup for the given key.
@@ -83,7 +83,7 @@ int htable_remove(HashTable* t, const uint8_t* key, size_t key_size);
  * @return On success, returns the object mapped to the given key.
  * @return NULL on error, or if the key was not present in the table.
  */
-void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size);
+void* htable_lookup(HashTable const* t, uint8_t const* key, size_t key_size);
 
 /**
  * Returns an array of keys that can be iterated over to lookup every mapping
@@ -100,7 +100,7 @@ void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size);
  * responsible for freeing this array. The keys in the returned array are
  * pointers to the keys in the table. Do not modify these values.
  */
-HTableKey* htable_get_keys(const HashTable* t, size_t* size);
+HTableKey* htable_get_keys(HashTable const* t, size_t* size);
 
 /**
  * Returns an array of keys and values present in the table at the time this
@@ -116,16 +116,16 @@ HTableKey* htable_get_keys(const HashTable* t, size_t* size);
  * @return A dynamically-allocated array of hash table mappings. The caller is
  * responsible for freeing this array.
  */
-HTableMapping* htable_get_mappings(const HashTable* t, size_t* size);
+HTableMapping* htable_get_mappings(HashTable const* t, size_t* size);
 
 /**
  * Returns the number of buckets present in the table.
  */
-size_t htable_get_size(const HashTable* t);
+size_t htable_get_size(HashTable const* t);
 
 /**
  * Returns the number of mappings present in the table.
  */
-size_t htable_get_mapping_size(const HashTable* t);
+size_t htable_get_mapping_size(HashTable const* t);
 
 #endif

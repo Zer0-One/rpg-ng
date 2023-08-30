@@ -20,13 +20,13 @@
 #include "transform.h"
 
 bool component_init() {
-    if(!inventory_init()) {
+    if (!inventory_init()) {
         logmsg(LOG_WARN, "component: Unable to initialize inventory component");
 
         return false;
     }
 
-    if(!dialogue_init()) {
+    if (!dialogue_init()) {
         logmsg(LOG_WARN, "component: Unable to initialize dialogue component");
 
         return false;
@@ -38,23 +38,23 @@ bool component_init() {
 bool component_cleanup(uint16_t entity_id) {
     Entity* e = entity_get(entity_id);
 
-    if(!e) {
+    if (!e) {
         return false;
     }
 
     size_t keys_size;
     HTableKey* keys = htable_get_keys(e->components, &keys_size);
 
-    if(!keys) {
+    if (!keys) {
         logmsg(LOG_ERR, "component: Unable to get components for entity[%" PRIu16 "]('%s'), the system is out of memory", entity_id, e->name);
 
         _exit(-1);
     }
 
-    for(size_t i = 0; i < keys_size; i++) {
+    for (size_t i = 0; i < keys_size; i++) {
         bool ret = false;
 
-        switch(keys[i].key[0]) {
+        switch (keys[i].key[0]) {
             case DIALOGUE:
                 ret = dialogue_destroy(entity_id);
                 break;
@@ -65,11 +65,16 @@ bool component_cleanup(uint16_t entity_id) {
                 ret = transform_destroy(entity_id);
                 break;
             default:
-                logmsg(LOG_WARN, "component: Unknown component[%" PRIu8 "] associated with entity[%" PRIu16 "]('%s') cannot be destroyed", keys[i].key, entity_id, e->name);
+                logmsg(LOG_WARN,
+                    "component: Unknown component[%" PRIu8 "] associated with entity[%" PRIu16 "]('%s') cannot be destroyed",
+                    keys[i].key,
+                    entity_id,
+                    e->name);
         }
 
-        if(!ret) {
-            logmsg(LOG_WARN, "component: Failed to destroy component[%" PRIu8 "] associated with entity[%" PRIu16 "]('%s')", keys[i].key, entity_id, e->name);
+        if (!ret) {
+            logmsg(
+                LOG_WARN, "component: Failed to destroy component[%" PRIu8 "] associated with entity[%" PRIu16 "]('%s')", keys[i].key, entity_id, e->name);
         }
     }
 

@@ -62,7 +62,7 @@ Item* inventory_item_get(uint16_t item_id);
  *
  * The caller is responsible for freeing the item returned by this function.
  */
-Item* inventory_item_get_byname(const char* name);
+Item* inventory_item_get_byname(char const* name);
 
 /**
  * Creates a new inventory, initializes it with the items represented by the

@@ -14,7 +14,7 @@ void script_init() {
 }
 
 bool script_cleanup() {
-    if(Py_FinalizeEx() != 0){
+    if (Py_FinalizeEx() != 0) {
         return false;
     }
 

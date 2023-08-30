@@ -12,6 +12,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "config.h"
 #include "entity.h"
 #ifdef _MSC_VER
 #include "getopt.h"
@@ -25,7 +26,7 @@
 #include "component/transform.h"
 
 #define _RPGNG_STR(x) #x
-#define RPGNG_STR(x)  _RPGNG_STR(x)
+#define RPGNG_STR(x) _RPGNG_STR(x)
 
 void print_usage() {
     printf("Usage: rpgng [-d] [-l logfile]\n\n");
@@ -38,10 +39,10 @@ void print_usage() {
     printf("\n");
 }
 
-const unsigned int VERSION_MAJOR = RPGNG_VERSION_MAJOR;
-const unsigned int VERSION_MINOR = RPGNG_VERSION_MINOR;
-const unsigned int VERSION_PATCH = RPGNG_VERSION_PATCH;
-const char* const VERSION = RPGNG_STR(RPGNG_VERSION);
+unsigned int const VERSION_MAJOR = RPGNG_VERSION_MAJOR;
+unsigned int const VERSION_MINOR = RPGNG_VERSION_MINOR;
+unsigned int const VERSION_PATCH = RPGNG_VERSION_PATCH;
+char const* const VERSION = RPGNG_STR(RPGNG_VERSION);
 
 void print_versions() {
     printf("rpgng version %s\n\n", RPGNG_STR(RPGNG_VERSION));
@@ -56,9 +57,13 @@ int main(int argc, char* argv[]) {
     log_priority log_level;
     char* log_path = NULL;
     char* mainscript_path = NULL;
+    char* config_path = NULL;
 
-    while((opt = getopt(argc, argv, "de:hvl:")) != -1) {
-        switch(opt) {
+    while ((opt = getopt(argc, argv, "c:de:hvl:")) != -1) {
+        switch (opt) {
+            case 'c':
+                config_path = optarg;
+                break;
             case 'd':
                 log_level = LOG_DEBUG;
                 break;
@@ -81,16 +86,21 @@ int main(int argc, char* argv[]) {
     }
 
     // Initialize logging
-    if(log_init(log_level, log_path) != 0) {
+    if (log_init(log_level, log_path) != 0) {
         _exit(-1);
     }
 
     logmsg(LOG_INFO, "rpgng initializing");
 
+    // Load config
+    if (!config_load(config_path)) {
+        _exit(-1);
+    }
+
     // Initialize SDL
     logmsg(LOG_DEBUG, "main: Initializing SDL");
 
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         logmsg(LOG_ERR, "main: Failed to initialize SDL: '%s'", SDL_GetError());
 
         _exit(-1);
@@ -99,7 +109,7 @@ int main(int argc, char* argv[]) {
     // Initialize entities
     logmsg(LOG_DEBUG, "main: Initializing entity system");
 
-    if(!entity_init()) {
+    if (!entity_init()) {
         logmsg(LOG_ERR, "Failed to initialize entity subsystem");
 
         _exit(-1);
@@ -108,11 +118,11 @@ int main(int argc, char* argv[]) {
     // Initialize component subsystems
     logmsg(LOG_DEBUG, "main: Initializing components");
 
-    if(!component_init()) {
+    if (!component_init()) {
         _exit(-1);
     }
 
-    // Initialize Lua scripting subsystem
+    // Initialize Python scripting subsystem
     logmsg(LOG_DEBUG, "main: Initializing scripting interface");
 
     script_init();
@@ -126,23 +136,23 @@ int main(int argc, char* argv[]) {
 
     uint16_t e = entity_create("kitty");
 
-    if(!transform_create(e)) {
+    if (!transform_create(e)) {
         logmsg(LOG_ERR, "ZOMG THE TRANSFORM IS BROKEN");
         _exit(-1);
     }
 
-    if(!sprite_create(e, "/home/zero-one/kitten.jpg")) {
+    if (!sprite_create(e, "/home/zero-one/kitten.jpg")) {
         logmsg(LOG_ERR, "ZOMG THE SPRITE IS BROKEN");
         _exit(-1);
     }
 
-    if(!transform_destroy(e)) {
+    if (!transform_destroy(e)) {
         logmsg(LOG_ERR, "FAILED TO DESTROY TRANSFORM");
 
         _exit(-1);
     }
 
-    if(!sprite_destroy(e)) {
+    if (!sprite_destroy(e)) {
         logmsg(LOG_ERR, "FAILED TO DESTROY SPRITE");
 
         _exit(-1);

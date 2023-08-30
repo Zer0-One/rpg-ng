@@ -36,7 +36,7 @@ typedef union TransformSignalArgs {
 } TransformSignalArgs;
 
 // Strings representing the above signal types. Use the above enum values as indexes.
-extern const char* transform_signal_type_str[];
+extern char const* transform_signal_type_str[];
 
 // Transform cock and ball torture
 typedef void (*transform_cb_t)(TransformSignalArgs);

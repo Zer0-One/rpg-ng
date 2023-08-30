@@ -29,6 +29,7 @@ endif()
 add_executable(rpgng)
 target_sources(rpgng
     PRIVATE
+        "src/config.c"
         "src/entity.c"
         "src/htable.c"
         "src/log.c"

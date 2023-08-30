@@ -26,10 +26,10 @@ typedef struct HashTable {
 } HashTable;
 
 // Bob Jenkins One-At-A-Time hash
-uint32_t hash(const uint8_t* key, size_t len) {
+uint32_t hash(uint8_t const* key, size_t len) {
     uint32_t hash = 0;
 
-    for(size_t i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         hash += key[i];
         hash += (hash << 10);
         hash ^= (hash >> 6);
@@ -43,7 +43,7 @@ uint32_t hash(const uint8_t* key, size_t len) {
 }
 
 HashTable* htable_create(size_t size) {
-    if(size == 0) {
+    if (size == 0) {
         logmsg(LOG_WARN, "htable: Cannot create hash table of size 0");
 
         return NULL;
@@ -51,7 +51,7 @@ HashTable* htable_create(size_t size) {
 
     HashTable* t = calloc(1, sizeof(HashTable));
 
-    if(t == NULL) {
+    if (t == NULL) {
         logmsg(LOG_WARN, "htable: Unable to create table, the system is out of memory");
 
         return NULL;
@@ -59,7 +59,7 @@ HashTable* htable_create(size_t size) {
 
     t->buckets = calloc(size, sizeof(HTableEntry));
 
-    if(t == NULL) {
+    if (t == NULL) {
         logmsg(LOG_WARN, "htable: Unable to initialize table, the system is out of memory");
 
         free(t);
@@ -75,13 +75,13 @@ HashTable* htable_create(size_t size) {
 }
 
 void htable_destroy(HashTable* t) {
-    if(t == NULL) {
+    if (t == NULL) {
         logmsg(LOG_WARN, "htable: Attempted to free null table");
 
         return;
     }
 
-    for(size_t i = 0; i < t->bucket_count; i++) {
+    for (size_t i = 0; i < t->bucket_count; i++) {
         free(t->buckets[i].key);
     }
 
@@ -90,20 +90,20 @@ void htable_destroy(HashTable* t) {
     free(t);
 }
 
-void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size) {
-    if(t == NULL) {
+void* htable_lookup(HashTable const* t, uint8_t const* key, size_t key_size) {
+    if (t == NULL) {
         logmsg(LOG_WARN, "htable: Attempted a lookup in a null table");
 
         return NULL;
     }
 
-    if(key == NULL) {
+    if (key == NULL) {
         logmsg(LOG_WARN, "htable: Attempted a lookup using a null key");
 
         return NULL;
     }
 
-    if(key_size == 0) {
+    if (key_size == 0) {
         logmsg(LOG_WARN, "htable: Attempted a lookup using a key of size 0");
 
         return NULL;
@@ -112,17 +112,17 @@ void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size) {
     size_t index = hash(key, key_size) % t->bucket_count;
 
     // Iterate over buckets in a circle until we find the key
-    for(size_t i = index; i != index - 1; i = (i + 1) % t->bucket_count) {
-        if(t->buckets[i].key_size == key_size) {
+    for (size_t i = index; i != index - 1; i = (i + 1) % t->bucket_count) {
+        if (t->buckets[i].key_size == key_size) {
             size_t j;
 
-            for(j = 0; j < key_size; j++) {
-                if(t->buckets[i].key[j] != key[j]) {
+            for (j = 0; j < key_size; j++) {
+                if (t->buckets[i].key[j] != key[j]) {
                     break;
                 }
             }
 
-            if(j == key_size) {
+            if (j == key_size) {
                 return t->buckets[i].value;
             }
         }
@@ -132,7 +132,7 @@ void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size) {
 }
 
 int htable_rehash(HashTable* t, size_t scale) {
-    if(scale < 2) {
+    if (scale < 2) {
         logmsg(LOG_WARN, "htable: Attempted to scale table by less than 2x");
 
         return -1;
@@ -140,16 +140,16 @@ int htable_rehash(HashTable* t, size_t scale) {
 
     HashTable* new_t = htable_create(t->bucket_count * scale);
 
-    if(new_t == NULL) {
+    if (new_t == NULL) {
         logmsg(LOG_WARN, "htable: Could not resize/rehash table, the system is out of memory");
 
         return -1;
     }
 
-    for(size_t i = 0; i < t->bucket_count; i++) {
+    for (size_t i = 0; i < t->bucket_count; i++) {
         int result = htable_add(new_t, t->buckets[i].key, t->buckets[i].key_size, t->buckets[i].value);
 
-        if(result != 0) {
+        if (result != 0) {
             htable_destroy(new_t);
 
             logmsg(LOG_WARN, "htable: Rehashing failed");
@@ -171,32 +171,32 @@ int htable_rehash(HashTable* t, size_t scale) {
     return 0;
 }
 
-int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value) {
-    if(t == NULL) {
+int htable_add(HashTable* t, uint8_t const* key, size_t key_size, void* value) {
+    if (t == NULL) {
         logmsg(LOG_WARN, "htable: Attempted to add a mapping to a null table");
 
         return -1;
     }
 
-    if(key == NULL) {
+    if (key == NULL) {
         logmsg(LOG_WARN, "htable: Attempted to add a null key to table");
 
         return -1;
     }
 
-    if(key_size == 0) {
+    if (key_size == 0) {
         logmsg(LOG_WARN, "htable: Attempted to add a key of size 0 to table");
 
         return -1;
     }
 
-    if(value == NULL) {
+    if (value == NULL) {
         logmsg(LOG_WARN, "htable: Attempted to add a null value to table");
 
         return -1;
     }
 
-    if(htable_lookup(t, key, key_size) != NULL) {
+    if (htable_lookup(t, key, key_size) != NULL) {
         logmsg(LOG_WARN, "htable: Unable to add mapping to table, key already exists");
 
         return -2;
@@ -205,11 +205,11 @@ int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value) {
     size_t index = hash(key, key_size) % t->bucket_count;
 
     // Iterate in a circle until we find an empty bucket
-    for(size_t i = index; i != index - 1; i = (i + 1) % t->bucket_count) {
-        if(t->buckets[i].key == NULL) {
+    for (size_t i = index; i != index - 1; i = (i + 1) % t->bucket_count) {
+        if (t->buckets[i].key == NULL) {
             t->buckets[i].key = malloc(key_size);
 
-            if(t->buckets[i].key == NULL) {
+            if (t->buckets[i].key == NULL) {
                 logmsg(LOG_WARN, "htable: Unable to add mapping to table, the system is out of memory");
 
                 return -3;
@@ -227,7 +227,7 @@ int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value) {
     }
 
     // We ran out of space, resize and rehash the table
-    if(htable_rehash(t, 2) != 0) {
+    if (htable_rehash(t, 2) != 0) {
         logmsg(LOG_WARN, "htable: Rehash failed");
 
         return -3;
@@ -236,20 +236,20 @@ int htable_add(HashTable* t, const uint8_t* key, size_t key_size, void* value) {
     return htable_add(t, key, key_size, value);
 }
 
-int htable_remove(HashTable* t, const uint8_t* key, size_t key_size) {
-    if(t == NULL) {
+int htable_remove(HashTable* t, uint8_t const* key, size_t key_size) {
+    if (t == NULL) {
         logmsg(LOG_WARN, "htable: Attempted to remove a mapping from a null table");
 
         return -1;
     }
 
-    if(key == NULL) {
+    if (key == NULL) {
         logmsg(LOG_WARN, "htable: Attempted to remove a null key from table");
 
         return -1;
     }
 
-    if(key_size == 0) {
+    if (key_size == 0) {
         logmsg(LOG_WARN, "htable: Attempted to remove a key of size 0 from table");
 
         return -1;
@@ -258,18 +258,18 @@ int htable_remove(HashTable* t, const uint8_t* key, size_t key_size) {
     size_t index = hash(key, key_size) % t->bucket_count;
 
     // Iterate over buckets in a circle until we find the key
-    for(size_t i = index; i != index - 1; i = (i + 1) % t->bucket_count) {
-        if(t->buckets[i].key_size == key_size) {
+    for (size_t i = index; i != index - 1; i = (i + 1) % t->bucket_count) {
+        if (t->buckets[i].key_size == key_size) {
             size_t j;
 
-            for(j = 0; j < key_size; j++) {
-                if(t->buckets[i].key[j] != key[j]) {
+            for (j = 0; j < key_size; j++) {
+                if (t->buckets[i].key[j] != key[j]) {
                     break;
                 }
             }
 
             // Key found
-            if(j == key_size) {
+            if (j == key_size) {
                 free(t->buckets[i].key);
                 t->buckets[i].key = NULL;
                 t->buckets[i].key_size = 0;
@@ -285,8 +285,8 @@ int htable_remove(HashTable* t, const uint8_t* key, size_t key_size) {
     return -2;
 }
 
-HTableKey* htable_get_keys(const HashTable* t, size_t* size) {
-    if(t == NULL) {
+HTableKey* htable_get_keys(HashTable const* t, size_t* size) {
+    if (t == NULL) {
         logmsg(LOG_WARN, "htable: Unable to get keys from NULL table");
 
         return NULL;
@@ -294,15 +294,15 @@ HTableKey* htable_get_keys(const HashTable* t, size_t* size) {
 
     HTableKey* ret = calloc(t->mapping_count, sizeof(HTableKey));
 
-    if(ret == NULL) {
+    if (ret == NULL) {
         logmsg(LOG_ERR, "htable: Unable to create hash table key array, the system is out of memory");
 
         _exit(-1);
     }
 
     size_t cnt = 0;
-    for(size_t i = 0; i < t->bucket_count; i++) {
-        if(t->buckets[i].key != NULL) {
+    for (size_t i = 0; i < t->bucket_count; i++) {
+        if (t->buckets[i].key != NULL) {
             ret[cnt].key_size = t->buckets[i].key_size;
             ret[cnt].key = t->buckets[i].key;
         }
@@ -313,10 +313,10 @@ HTableKey* htable_get_keys(const HashTable* t, size_t* size) {
     return ret;
 }
 
-size_t htable_get_size(const HashTable* t) {
+size_t htable_get_size(HashTable const* t) {
     return t->bucket_count;
 }
 
-size_t htable_get_mapping_size(const HashTable* t) {
+size_t htable_get_mapping_size(HashTable const* t) {
     return t->mapping_count;
 }

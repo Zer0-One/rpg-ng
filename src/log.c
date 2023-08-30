@@ -18,7 +18,7 @@ char* log_file_path = NULL;
 
 log_priority log_level = LOG_INFO;
 
-const char* log_prio_str[] = {
+char const* log_prio_str[] = {
     [LOG_DEBUG] = "DEBUG",
     [LOG_INFO] = "INFO",
     [LOG_WARN] = "WARNING",
@@ -27,10 +27,10 @@ const char* log_prio_str[] = {
 };
 
 int log_init(log_priority level, char* path) {
-    if(path != NULL) {
+    if (path != NULL) {
         FILE* handle = fopen(path, "ab");
 
-        if(!handle) {
+        if (!handle) {
             logmsg(LOG_ERR, "log: Unable to open logfile '%s' for writing, %s", path, strerror(errno));
 
             return -1;
@@ -46,7 +46,7 @@ int log_init(log_priority level, char* path) {
 }
 
 void logmsg(log_priority loglevel, char* msg, ...) {
-    if(loglevel == LOG_DEBUG && log_level != LOG_DEBUG) {
+    if (loglevel == LOG_DEBUG && log_level != LOG_DEBUG) {
         return;
     }
 
@@ -76,7 +76,7 @@ void logmsg(log_priority loglevel, char* msg, ...) {
     vprintf(msg, args);
     printf("\n");
 
-    if(log_file != NULL) {
+    if (log_file != NULL) {
         vfprintf(log_file, msg, args);
         fprintf(log_file, "\n");
     }
@@ -87,8 +87,8 @@ void logmsg(log_priority loglevel, char* msg, ...) {
 }
 
 int log_close(void) {
-    if(log_file != NULL) {
-        if(fclose(log_file) != 0) {
+    if (log_file != NULL) {
+        if (fclose(log_file) != 0) {
             logmsg(LOG_ERR, "log: Unable to close logfile '%s', %s", log_file_path, strerror(errno));
 
             return -1;

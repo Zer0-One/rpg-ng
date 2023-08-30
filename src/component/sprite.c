@@ -35,7 +35,7 @@ struct Sprite {
 
 // Signals
 
-const char* sprite_signal_type_str[] = {
+char const* sprite_signal_type_str[] = {
     "flip_h",
     "flip_v",
     "z_order",
@@ -45,23 +45,23 @@ const char* sprite_signal_type_str[] = {
 bool sprite_regcb(Sprite* s, SpriteSignalType type, sprite_cb_t cb) {
     logmsg(LOG_DEBUG, "component(sprite): Attempting to register callback for signal['%s']", sprite_signal_type_str[type]);
 
-    if(!cb) {
+    if (!cb) {
         logmsg(LOG_WARN, "component(sprite): Unable to register NULL callback");
 
         return false;
     }
 
-    if(!s) {
+    if (!s) {
         logmsg(LOG_WARN, "component(sprite): Unable to register callback for NULL component");
 
         return false;
     }
 
     // If the array isn't yet initialized, do that now
-    if(!s->cb_list.cb) {
+    if (!s->cb_list.cb) {
         s->cb_list.cb = calloc(SLOT_DEFAULT_SIZE, sizeof(SpriteCallback));
 
-        if(!s->cb_list.cb) {
+        if (!s->cb_list.cb) {
             logmsg(LOG_WARN, "component(sprite): Failed to initialize callback array, the system is out of memory");
 
             return false;
@@ -69,10 +69,10 @@ bool sprite_regcb(Sprite* s, SpriteSignalType type, sprite_cb_t cb) {
     }
 
     // If the array is full, double the size
-    if(s->cb_list.size == s->cb_list.count) {
+    if (s->cb_list.size == s->cb_list.count) {
         SpriteCallback* tmp = realloc(s->cb_list.cb, s->cb_list.size * 2 * sizeof(SpriteCallback));
 
-        if(!tmp) {
+        if (!tmp) {
             logmsg(LOG_WARN, "component(sprite): Failed to resize callback array, the system is out of memory");
 
             return false;
@@ -86,8 +86,8 @@ bool sprite_regcb(Sprite* s, SpriteSignalType type, sprite_cb_t cb) {
     }
 
     // Add the callback
-    for(size_t i = 0; i < s->cb_list.size; i++) {
-        if(s->cb_list.cb[i].cb == NULL) {
+    for (size_t i = 0; i < s->cb_list.size; i++) {
+        if (s->cb_list.cb[i].cb == NULL) {
             s->cb_list.cb[i].cb = cb;
             s->cb_list.cb[i].type = type;
 
@@ -97,7 +97,9 @@ bool sprite_regcb(Sprite* s, SpriteSignalType type, sprite_cb_t cb) {
         }
     }
 
-    logmsg(LOG_ERR, "component(sprite): Failed to register callback for signal['%s'], callback array isn't full, but a free slot was never found", sprite_signal_type_str[type]);
+    logmsg(LOG_ERR,
+        "component(sprite): Failed to register callback for signal['%s'], callback array isn't full, but a free slot was never found",
+        sprite_signal_type_str[type]);
 
     _exit(-1);
 }
@@ -105,8 +107,8 @@ bool sprite_regcb(Sprite* s, SpriteSignalType type, sprite_cb_t cb) {
 bool sprite_unregcb(Sprite* s, sprite_cb_t cb) {
     logmsg(LOG_DEBUG, "component(sprite): Attempting to unregister callback (%p)", cb);
 
-    for(size_t i = 0; i < s->cb_list.size; i++) {
-        if(s->cb_list.cb[i].cb == cb) {
+    for (size_t i = 0; i < s->cb_list.size; i++) {
+        if (s->cb_list.cb[i].cb == cb) {
             s->cb_list.cb[i].cb = NULL;
             s->cb_list.cb[i].type = 0;
 
@@ -120,8 +122,8 @@ bool sprite_unregcb(Sprite* s, sprite_cb_t cb) {
 }
 
 void sprite_signal(Sprite* s, SpriteSignalType type, SpriteSignalArgs args) {
-    for(size_t i = 0; i < s->cb_list.size; i++) {
-        if(s->cb_list.cb[i].type == type) {
+    for (size_t i = 0; i < s->cb_list.size; i++) {
+        if (s->cb_list.cb[i].type == type) {
             s->cb_list.cb[i].cb(args);
         }
     }
@@ -132,13 +134,13 @@ bool sprite_create(uint16_t entity_id, char* path) {
 
     Entity* e = entity_get(entity_id);
 
-    if(!e) {
+    if (!e) {
         logmsg(LOG_WARN, "component(sprite): Unable to create sprite, failed to get entity[%" PRIu16 "]", entity_id);
 
         return false;
     }
 
-    if(entity_has_component(e->id, sprite_component_type)) {
+    if (entity_has_component(e->id, sprite_component_type)) {
         logmsg(LOG_WARN, "component(sprite): Unable to create sprite, entity[%" PRIu16 "]('%s') already has sprite", e->id, e->name);
 
         return false;
@@ -146,15 +148,16 @@ bool sprite_create(uint16_t entity_id, char* path) {
 
     SDL_Surface* surface = IMG_Load(path);
 
-    if(!surface) {
-        logmsg(LOG_WARN, "component(sprite): Unable to create sprite for entity[%" PRIu16 "]('%s'), failed to load image at path '%s'", e->id, e->name, path);
+    if (!surface) {
+        logmsg(
+            LOG_WARN, "component(sprite): Unable to create sprite for entity[%" PRIu16 "]('%s'), failed to load image at path '%s'", e->id, e->name, path);
 
         return false;
     }
 
     Sprite* s = calloc(1, sizeof(Sprite));
 
-    if(!s) {
+    if (!s) {
         logmsg(LOG_WARN, "component(sprite): Failed to create sprite for entity[%" PRIu16 "]('%s'), the system is out of memory", e->id, e->name);
 
         return false;
@@ -166,7 +169,7 @@ bool sprite_create(uint16_t entity_id, char* path) {
 
     s->surface = surface;
 
-    if(htable_add(e->components, (uint8_t*)&sprite_component_type, sizeof(sprite_component_type), s) != 0) {
+    if (htable_add(e->components, (uint8_t*)&sprite_component_type, sizeof(sprite_component_type), s) != 0) {
         logmsg(LOG_WARN, "component(sprite): Failed to map sprite in component table for entity[%" PRIu16 "]('%s')", e->id, e->name);
 
         SDL_FreeSurface(s->surface);
@@ -184,7 +187,7 @@ bool sprite_destroy(uint16_t entity_id) {
 
     Entity* e = entity_get(entity_id);
 
-    if(!e) {
+    if (!e) {
         logmsg(LOG_WARN, "component(sprite): Unable to destroy sprite, failed to get entity[%" PRIu16 "]", entity_id);
 
         return false;
@@ -192,7 +195,7 @@ bool sprite_destroy(uint16_t entity_id) {
 
     Sprite* s = htable_lookup(e->components, (uint8_t*)&sprite_component_type, sizeof(sprite_component_type));
 
-    if(!s) {
+    if (!s) {
         logmsg(LOG_WARN, "component(sprite): Unable to destroy sprite, failed to get sprite associated with entity[%" PRIu16 "]('%s')", e->id, e->name);
 
         return false;

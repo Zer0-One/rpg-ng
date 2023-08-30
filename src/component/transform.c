@@ -31,7 +31,7 @@ struct Transform {
 
 // Signals
 
-const char* transform_signal_type_str[] = {
+char const* transform_signal_type_str[] = {
     "translate",
     "rotate",
     "scale",
@@ -40,23 +40,23 @@ const char* transform_signal_type_str[] = {
 bool transform_regcb(Transform* t, TransformSignalType type, transform_cb_t cb) {
     logmsg(LOG_DEBUG, "component(transform): Attempting to register callback for signal['%s']", transform_signal_type_str[type]);
 
-    if(!cb) {
+    if (!cb) {
         logmsg(LOG_WARN, "component(transform): Unable to register NULL callback");
 
         return false;
     }
 
-    if(!t) {
+    if (!t) {
         logmsg(LOG_WARN, "component(transform): Unable to register callback for NULL component");
 
         return false;
     }
 
     // If the array isn't yet initialized, do that now
-    if(!t->cb_list.cb) {
+    if (!t->cb_list.cb) {
         t->cb_list.cb = calloc(SLOT_DEFAULT_SIZE, sizeof(TransformCallback));
 
-        if(!t->cb_list.cb) {
+        if (!t->cb_list.cb) {
             logmsg(LOG_WARN, "component(transform): Failed to initialize callback array, the system is out of memory");
 
             return false;
@@ -64,10 +64,10 @@ bool transform_regcb(Transform* t, TransformSignalType type, transform_cb_t cb) 
     }
 
     // If the array is full, double the size
-    if(t->cb_list.size == t->cb_list.count) {
+    if (t->cb_list.size == t->cb_list.count) {
         TransformCallback* tmp = realloc(t->cb_list.cb, t->cb_list.size * 2 * sizeof(TransformCallback));
 
-        if(!tmp) {
+        if (!tmp) {
             logmsg(LOG_WARN, "component(transform): Failed to resize callback array, the system is out of memory");
 
             return false;
@@ -80,8 +80,8 @@ bool transform_regcb(Transform* t, TransformSignalType type, transform_cb_t cb) 
     }
 
     // Add the callback
-    for(size_t i = 0; i < t->cb_list.size; i++) {
-        if(t->cb_list.cb[i].cb == NULL) {
+    for (size_t i = 0; i < t->cb_list.size; i++) {
+        if (t->cb_list.cb[i].cb == NULL) {
             t->cb_list.cb[i].cb = cb;
             t->cb_list.cb[i].type = type;
 
@@ -91,7 +91,9 @@ bool transform_regcb(Transform* t, TransformSignalType type, transform_cb_t cb) 
         }
     }
 
-    logmsg(LOG_ERR, "component(transform): Failed to register callback for signal['%s'], callback array isn't full, but a free slot was never found", transform_signal_type_str[type]);
+    logmsg(LOG_ERR,
+        "component(transform): Failed to register callback for signal['%s'], callback array isn't full, but a free slot was never found",
+        transform_signal_type_str[type]);
 
     _exit(-1);
 }
@@ -99,8 +101,8 @@ bool transform_regcb(Transform* t, TransformSignalType type, transform_cb_t cb) 
 bool transform_unregcb_translate(Transform* t, transform_cb_t cb) {
     logmsg(LOG_DEBUG, "component(transform): Attempting to unregister callback (%p)", cb);
 
-    for(size_t i = 0; i < t->cb_list.size; i++) {
-        if(t->cb_list.cb[i].cb == cb) {
+    for (size_t i = 0; i < t->cb_list.size; i++) {
+        if (t->cb_list.cb[i].cb == cb) {
             t->cb_list.cb[i].cb = NULL;
             t->cb_list.cb[i].type = 0;
 
@@ -114,8 +116,8 @@ bool transform_unregcb_translate(Transform* t, transform_cb_t cb) {
 }
 
 void transform_signal(Transform* t, TransformSignalType type, TransformSignalArgs args) {
-    for(size_t i = 0; i < t->cb_list.count; i++) {
-        if(t->cb_list.cb[i].type == type) {
+    for (size_t i = 0; i < t->cb_list.count; i++) {
+        if (t->cb_list.cb[i].type == type) {
             t->cb_list.cb[i].cb(args);
         }
     }
@@ -128,13 +130,13 @@ bool transform_create(uint16_t entity_id) {
 
     Entity* e = entity_get(entity_id);
 
-    if(!e) {
+    if (!e) {
         logmsg(LOG_WARN, "component(transform): Unable to create transform, failed to get entity[%" PRIu16 "]", entity_id);
 
         return false;
     }
 
-    if(entity_has_component(e->id, transform_component_type)) {
+    if (entity_has_component(e->id, transform_component_type)) {
         logmsg(LOG_WARN, "component(transform): Unable to create transform, entity[%" PRIu16 "]('%s') already has transform", e->id, e->name);
 
         return false;
@@ -142,13 +144,13 @@ bool transform_create(uint16_t entity_id) {
 
     Transform* t = calloc(1, sizeof(Transform));
 
-    if(!t) {
+    if (!t) {
         logmsg(LOG_WARN, "component(transform): Failed to create transform, the system is out of memory");
 
         return false;
     }
 
-    if(htable_add(e->components, (uint8_t*)&transform_component_type, sizeof(transform_component_type), t) != 0) {
+    if (htable_add(e->components, (uint8_t*)&transform_component_type, sizeof(transform_component_type), t) != 0) {
         logmsg(LOG_WARN, "component(transform): Failed to map transform in component table for entity[%" PRIu16 "]('%s')", e->id, e->name);
 
         free(t);
@@ -164,7 +166,7 @@ bool transform_destroy(uint16_t entity_id) {
 
     Entity* e = entity_get(entity_id);
 
-    if(!e) {
+    if (!e) {
         logmsg(LOG_WARN, "component(transform): Unable to destroy transform, failed to get entity[%" PRIu16 "]", entity_id);
 
         return false;
@@ -172,7 +174,7 @@ bool transform_destroy(uint16_t entity_id) {
 
     Transform* t = htable_lookup(e->components, (uint8_t*)&transform_component_type, sizeof(transform_component_type));
 
-    if(!t) {
+    if (!t) {
         logmsg(LOG_WARN, "component(transform): Failed to get transform associated with entity[%" PRIu16 "]('%s')", e->id, e->name);
 
         return false;
@@ -180,8 +182,11 @@ bool transform_destroy(uint16_t entity_id) {
 
     free(t);
 
-    if(htable_remove(e->components, (uint8_t*)&transform_component_type, sizeof(transform_component_type)) < 0) {
-        logmsg(LOG_ERR, "component(transform): Failed to remove transform associated with entity[%" PRIu16 "]('%s'), but it was present in the component table", e->id, e->name);
+    if (htable_remove(e->components, (uint8_t*)&transform_component_type, sizeof(transform_component_type)) < 0) {
+        logmsg(LOG_ERR,
+            "component(transform): Failed to remove transform associated with entity[%" PRIu16 "]('%s'), but it was present in the component table",
+            e->id,
+            e->name);
 
         _exit(-1);
     }
