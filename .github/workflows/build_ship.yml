@@ -26,7 +26,7 @@ jobs:
         submodules: 'true'
 
     - name: Install Dependencies
-      run: sudo apt-get update && sudo apt-get install -y libjansson-dev libsdl2-dev libsdl2-image-dev lua5.4-dev 
+      run: sudo apt-get update && sudo apt-get install -y libjansson-dev libsdl2-dev libsdl2-image-dev
 
     # Remove this step when the github-hosted runner has an up-to-date SDL2
     - name: Install newer SDL cmake config
@@ -59,7 +59,7 @@ jobs:
           submodules: 'true'
 
       - name: Install Dependencies
-        run: brew install lua jansson sdl2 sdl2_image
+        run: brew install jansson sdl2 sdl2_image
 
       - name: Configure CMake
         run: cmake -DCMAKE_BUILD_TYPE=Debug .
@@ -91,7 +91,7 @@ jobs:
           submodules: 'true'
 
       - name: Install Dependencies
-        run: vcpkg install jansson:x64-windows lua:x64-windows sdl2:x64-windows sdl2-image:x64-windows
+        run: vcpkg install jansson:x64-windows sdl2:x64-windows sdl2-image:x64-windows python3:x64-windows
 
       - name: Configure CMake
         run: cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake .
@@ -143,7 +143,7 @@ jobs:
 
     steps:
       - name: Install Dependencies
-        run: sudo apt-get update && sudo apt-get install -y graphviz doxygen libjansson-dev libsdl2-dev libsdl2-image-dev lua5.4-dev 
+        run: sudo apt-get update && sudo apt-get install -y graphviz doxygen libjansson-dev libsdl2-dev libsdl2-image-dev
 
       - name: Checkout source
         uses: actions/checkout@v3

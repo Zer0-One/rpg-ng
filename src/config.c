@@ -19,7 +19,31 @@
 // TODO(zero-one): Configure with sane defaults on startup
 EngineConfig global_config;
 
+void config_set_defaults() {
+    logmsg(LOG_DEBUG, "config: Applying default settings to global config");
+
+    // window settings
+    global_config.window.mode = "fullscreen";
+    global_config.window.x = -1;
+    global_config.window.y = -1;
+    global_config.window.width = 640;
+    global_config.window.height = 360;
+    global_config.window.borderless = true;
+    global_config.window.hidpi = false;
+    global_config.window.resizeable = false;
+
+    // script settings
+    global_config.script.isolate = true;
+    global_config.script.safe_api = true;
+
+    // entity settings
+    global_config.entity.root_name = "root";
+    global_config.entity.first_id = 0;
+}
+
 bool config_load(char const* path) {
+    config_set_defaults();
+
     logmsg(LOG_DEBUG, "config: Attempting to load configuration at '%s'", path);
 
     if (!path) {
@@ -53,6 +77,7 @@ bool config_load(char const* path) {
         goto fail;
     }
 
+    // Load window config
     char* mode = NULL;
 
     unpk = json_unpack_ex(window,
@@ -93,6 +118,7 @@ bool config_load(char const* path) {
         }
     }
 
+    // Load script config
     unpk = json_unpack_ex(script, &err, 0, "{s?b, s?b}", "isolate", &global_config.script.isolate, "safe_api", &global_config.script.safe_api);
 
     if (unpk == -1) {
@@ -102,6 +128,7 @@ bool config_load(char const* path) {
         goto fail;
     }
 
+    // Load entity config
     char* root_name = NULL;
     int first_id = -1;
 
