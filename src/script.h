@@ -10,7 +10,7 @@
 /**
  * Initializes the scripting subsystem.
  */
-void script_init();
+void script_init(void);
 
 /**
  * Shuts down all initialized interpreters, and frees all associated memory.
@@ -18,10 +18,10 @@ void script_init();
  * @return True on success.
  * @return False if an error was encountered.
  */
-bool script_cleanup();
+bool script_cleanup(void);
 
 // Foos the bar
-bool script_foo();
+bool script_foo(void);
 
 /**
  * Runs the Python script at the given path.

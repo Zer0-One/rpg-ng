@@ -32,7 +32,7 @@ typedef struct Inventory {
  * @return True on success.
  * @return False on failure.
  */
-bool inventory_init();
+bool inventory_init(void);
 
 /**
  * Creates a new item type with the given name, description, and monetary value.

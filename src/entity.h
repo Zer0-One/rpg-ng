@@ -11,7 +11,7 @@
 #include "component/component.h"
 #include "htable.h"
 
-#define ENTITY_NAME_LEN_MAX 256
+#define ENTITY_NAME_LEN_MAX 255
 
 typedef struct Entity {
     char name[ENTITY_NAME_LEN_MAX];
@@ -23,7 +23,7 @@ typedef struct Entity {
 /**
  * Initializes global state for the entity subsystem.
  */
-bool entity_init();
+bool entity_init(void);
 
 /**
  * Creates a new entity and assigns it an ID.

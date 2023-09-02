@@ -73,8 +73,10 @@ bool transform_regcb(Transform* t, TransformSignalType type, transform_cb_t cb) 
             return false;
         }
 
+        t->cb_list.cb = tmp;
+
         // Initialize the new memory so that we can find empty slots correctly
-        memset(&tmp[t->cb_list.size], 0, t->cb_list.size * sizeof(TransformCallback));
+        memset(&t->cb_list.cb[t->cb_list.size], 0, t->cb_list.size * sizeof(TransformCallback));
 
         t->cb_list.size *= 2;
     }
@@ -201,7 +203,7 @@ void transform_translate(Transform* t, int x, int y) {
     t->pos_x += x;
     t->pos_y += y;
 
-    TransformSignalArgs args = {x_old, y_old, t->pos_x, t->pos_y};
+    TransformSignalArgs args = {.x_old = x_old, .y_old = y_old, .x = t->pos_x, .y = t->pos_y};
 
     transform_signal(t, TRANSLATE, args);
 }
@@ -213,7 +215,7 @@ void transform_translate_set(Transform* t, int x, int y) {
     t->pos_x = x;
     t->pos_y = y;
 
-    TransformSignalArgs args = {x_old, y_old, t->pos_x, t->pos_y};
+    TransformSignalArgs args = {.x_old = x_old, .y_old = y_old, .x = t->pos_x, .y = t->pos_y};
 
     transform_signal(t, TRANSLATE, args);
 }
@@ -225,7 +227,7 @@ void transform_translate_reset(Transform* t) {
     t->pos_x = 0;
     t->pos_y = 0;
 
-    TransformSignalArgs args = {x_old, y_old, t->pos_x, t->pos_y};
+    TransformSignalArgs args = {.x_old = x_old, .y_old = y_old, .x = t->pos_x, .y = t->pos_y};
 
     transform_signal(t, TRANSLATE, args);
 }
@@ -235,7 +237,7 @@ void transform_rotate(Transform* t, double rotation) {
 
     t->rotation += rotation;
 
-    TransformSignalArgs args = {rotation_old, t->rotation};
+    TransformSignalArgs args = {.rotation_old = rotation_old, .rotation = t->rotation};
 
     transform_signal(t, ROTATE, args);
 }
@@ -245,7 +247,7 @@ void transform_rotate_set(Transform* t, double rotation) {
 
     t->rotation = rotation;
 
-    TransformSignalArgs args = {rotation_old, t->rotation};
+    TransformSignalArgs args = {.rotation_old = rotation_old, .rotation = t->rotation};
 
     transform_signal(t, ROTATE, args);
 }
@@ -255,7 +257,7 @@ void transform_rotate_reset(Transform* t) {
 
     t->rotation = 0;
 
-    TransformSignalArgs args = {rotation_old, t->rotation};
+    TransformSignalArgs args = {.rotation_old = rotation_old, .rotation = t->rotation};
 
     transform_signal(t, ROTATE, args);
 }
@@ -265,7 +267,7 @@ void transform_scale(Transform* t, double scale) {
 
     t->scale += scale;
 
-    TransformSignalArgs args = {scale_old, t->scale};
+    TransformSignalArgs args = {.scale_old = scale_old, .scale = t->scale};
 
     transform_signal(t, SCALE, args);
 }
@@ -275,7 +277,7 @@ void transform_scale_set(Transform* t, double scale) {
 
     t->scale = scale;
 
-    TransformSignalArgs args = {scale_old, t->scale};
+    TransformSignalArgs args = {.scale_old = scale_old, .scale = t->scale};
 
     transform_signal(t, SCALE, args);
 }
@@ -285,7 +287,7 @@ void transform_scale_reset(Transform* t) {
 
     t->scale = 0;
 
-    TransformSignalArgs args = {scale_old, t->scale};
+    TransformSignalArgs args = {.scale_old = scale_old, .scale = t->scale};
 
     transform_signal(t, SCALE, args);
 }

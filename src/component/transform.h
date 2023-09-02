@@ -74,7 +74,7 @@ bool transform_unregcb(Transform* t, transform_cb_t cb);
 /**
  * Frees all resources associated with the Transform component system.
  */
-void transform_cleanup();
+void transform_cleanup(void);
 
 /**
  * Associates a Transform component with the given entity.

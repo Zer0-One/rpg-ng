@@ -12,6 +12,9 @@
 #include <time.h>
 
 #include "log.h"
+#include "win_compat.h"
+
+#define ERR_BUF_SIZE 1024
 
 FILE* log_file = NULL;
 char* log_file_path = NULL;
@@ -27,11 +30,13 @@ const char* log_prio_str[] = {
 };
 
 int log_init(log_priority level, char* path) {
+    char err_buf[ERR_BUF_SIZE];
+
     if (path != NULL) {
         FILE* handle = fopen(path, "ab");
 
         if (!handle) {
-            logmsg(LOG_ERR, "log: Unable to open logfile '%s' for writing, %s", path, strerror(errno));
+            logmsg(LOG_ERR, "log: Unable to open logfile '%s' for writing, %s", path, strerror_r(errno, err_buf, ERR_BUF_SIZE));
 
             return -1;
         }
@@ -64,10 +69,11 @@ void logmsg(log_priority loglevel, char* msg, ...) {
     cur_time = ts.tv_sec;
 #endif
 
-    struct tm* bd_time = localtime(&cur_time);
+    struct tm bd_time;
+    localtime_r(&cur_time, &bd_time);
 
     char date_buffer[100];
-    strftime(date_buffer, 100, "[%F %T]", bd_time);
+    strftime(date_buffer, 100, "[%F %T]", &bd_time);
 
     printf("%s %s ", date_buffer, log_prio_str[loglevel]);
     if (log_file != NULL)
@@ -87,9 +93,11 @@ void logmsg(log_priority loglevel, char* msg, ...) {
 }
 
 int log_close(void) {
+    char err_buf[ERR_BUF_SIZE];
+
     if (log_file != NULL) {
         if (fclose(log_file) != 0) {
-            logmsg(LOG_ERR, "log: Unable to close logfile '%s', %s", log_file_path, strerror(errno));
+            logmsg(LOG_ERR, "log: Unable to close logfile '%s', %s", log_file_path, strerror_r(errno, err_buf, ERR_BUF_SIZE));
 
             return -1;
         }

@@ -28,7 +28,7 @@
 #define _RPGNG_STR(x) #x
 #define RPGNG_STR(x) _RPGNG_STR(x)
 
-void print_usage() {
+void print_usage(void) {
     printf("Usage: rpgng [-d] [-l logfile]\n\n");
     printf("Command-line options:\n");
     printf("\n\t-d\t\tEnables debug mode, increasing logging verbosity");
@@ -44,7 +44,7 @@ const unsigned int VERSION_MINOR = RPGNG_VERSION_MINOR;
 const unsigned int VERSION_PATCH = RPGNG_VERSION_PATCH;
 const char* const VERSION = RPGNG_STR(RPGNG_VERSION);
 
-void print_versions() {
+void print_versions(void) {
     printf("rpgng version %s\n\n", RPGNG_STR(RPGNG_VERSION));
     printf("Built with support for: \n");
     printf("\tSuper Cool Lib 1.5.2\n");
@@ -54,11 +54,12 @@ void print_versions() {
 int main(int argc, char* argv[]) {
     int opt;
 
-    log_priority log_level;
+    log_priority log_level = LOG_INFO;
     char* log_path = NULL;
     char* mainscript_path = NULL;
     char* config_path = NULL;
 
+    // NOLINTNEXTLINE(concurrency-mt-unsafe)
     while ((opt = getopt(argc, argv, "c:de:hvl:")) != -1) {
         switch (opt) {
             case 'c':
@@ -130,6 +131,8 @@ int main(int argc, char* argv[]) {
     logmsg(LOG_DEBUG, "main: Initializing scripting interface");
 
     script_init();
+
+    logmsg(LOG_DEBUG, "main: Main script at '%s'", mainscript_path);
 
     // if(mainscript_path == NULL){
     //     _exit(-1);

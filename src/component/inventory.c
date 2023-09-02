@@ -22,7 +22,7 @@ const ComponentType inventory_component_type = INVENTORY;
 
 HashTable* items = NULL;
 
-bool inventory_init() {
+bool inventory_init(void) {
     logmsg(LOG_DEBUG, "inventory: Attempting to initialize inventory");
 
     if (items != NULL) {

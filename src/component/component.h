@@ -17,7 +17,7 @@ typedef enum ComponentType {
     TRANSFORM
 } ComponentType;
 
-bool component_init();
+bool component_init(void);
 
 /**
  * Removes all components associated with the given entity by calling their

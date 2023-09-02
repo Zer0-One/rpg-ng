@@ -78,9 +78,10 @@ bool sprite_regcb(Sprite* s, SpriteSignalType type, sprite_cb_t cb) {
             return false;
         }
 
+        s->cb_list.cb = tmp;
+
         // Initialize the new memory so that we can find empty slots correctly
-        // TODO(zero-one): off-by-one?
-        memset(&tmp[s->cb_list.size], 0, s->cb_list.size * sizeof(SpriteCallback));
+        memset(&s->cb_list.cb[s->cb_list.size], 0, s->cb_list.size * sizeof(SpriteCallback));
 
         s->cb_list.size *= 2;
     }
@@ -213,7 +214,7 @@ void sprite_flip_h(Sprite* s) {
 
     s->flip_h = !s->flip_h;
 
-    SpriteSignalArgs args = {flip_h_old, s->flip_h};
+    SpriteSignalArgs args = {.flip_h_old = flip_h_old, .flip_h = s->flip_h};
 
     sprite_signal(s, FLIP_H, args);
 }
@@ -223,7 +224,7 @@ void sprite_flip_v(Sprite* s) {
 
     s->flip_v = !s->flip_v;
 
-    SpriteSignalArgs args = {flip_v_old, s->flip_v};
+    SpriteSignalArgs args = {.flip_v_old = flip_v_old, .flip_v = s->flip_v};
 
     sprite_signal(s, FLIP_V, args);
 }
@@ -233,7 +234,7 @@ void sprite_opacity_set(Sprite* s, double opacity) {
 
     s->opacity = opacity;
 
-    SpriteSignalArgs args = {opacity_old, s->opacity};
+    SpriteSignalArgs args = {.opacity_old = opacity_old, .opacity = s->opacity};
 
     sprite_signal(s, OPACITY, args);
 }
@@ -243,7 +244,7 @@ void sprite_z_set(Sprite* s, uint8_t z) {
 
     s->z = z;
 
-    SpriteSignalArgs args = {z_old, s->z};
+    SpriteSignalArgs args = {.z_old = z_old, .z = s->z};
 
     sprite_signal(s, Z_ORDER, args);
 }

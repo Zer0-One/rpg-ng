@@ -41,7 +41,7 @@ typedef struct Dialogue {
  * @return True on success.
  * @return False on failure.
  */
-bool dialogue_init();
+bool dialogue_init(void);
 
 /**
  * Creates a new dialogue and associates it with the given entity.

@@ -9,11 +9,11 @@
 
 #include "log.h"
 
-void script_init() {
+void script_init(void) {
     Py_Initialize();
 }
 
-bool script_cleanup() {
+bool script_cleanup(void) {
     if (Py_FinalizeEx() != 0) {
         return false;
     }
@@ -21,6 +21,6 @@ bool script_cleanup() {
     return true;
 }
 
-bool script_foo() {
+bool script_foo(void) {
     PyRun_SimpleString("print('FOO')");
 }

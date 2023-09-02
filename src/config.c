@@ -20,7 +20,7 @@
 // TODO(zero-one): Configure with sane defaults on startup
 EngineConfig global_config;
 
-void config_set_defaults() {
+void config_set_defaults(void) {
     logmsg(LOG_DEBUG, "config: Applying default settings to global config");
 
     // window settings
@@ -42,7 +42,7 @@ void config_set_defaults() {
     global_config.entity.first_id = 0;
 }
 
-bool config_init() {
+bool config_init(void) {
     if (global_config.custom) {
         logmsg(LOG_WARN, "config: Failed to initialize global config, already initialized");
 

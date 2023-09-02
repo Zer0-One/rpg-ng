@@ -25,7 +25,7 @@ HashTable* entities_str = NULL;
 
 uint16_t entity_next_id = 1;
 
-bool entity_init() {
+bool entity_init(void) {
     logmsg(LOG_DEBUG, "entity: Attempting to initialize entity");
 
     if (entities != NULL || entities_str != NULL) {

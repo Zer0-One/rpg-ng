@@ -81,7 +81,7 @@ bool sprite_unregcb(Sprite* s, sprite_cb_t cb);
 /**
  * Frees all resources associated with the Sprite component system.
  */
-void sprite_cleanup();
+void sprite_cleanup(void);
 
 /**
  * Associates a Sprite component with the given entity.

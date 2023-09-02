@@ -19,7 +19,7 @@
 #include "inventory.h"
 #include "transform.h"
 
-bool component_init() {
+bool component_init(void) {
     if (!inventory_init()) {
         logmsg(LOG_WARN, "component: Unable to initialize inventory component");
 

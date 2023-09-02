@@ -50,7 +50,7 @@ extern EngineConfig global_config;
  *
  * This function must be called once before the global config is used.
  */
-bool config_init();
+bool config_init(void);
 
 /**
  * Loads the engine configuration from the given path.
