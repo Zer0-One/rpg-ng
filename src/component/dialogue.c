@@ -40,7 +40,7 @@ bool dialogue_init() {
     return true;
 }
 
-bool dialogue_create(uint16_t entity_id, char const* path) {
+bool dialogue_create(uint16_t entity_id, const char* path) {
     logmsg(LOG_DEBUG, "dialogue: Creating new dialogue for entity:%" PRIu16, entity_id);
 
     if (dialogues == NULL) {

@@ -31,6 +31,6 @@ bool script_foo();
  * @return True if the entire script was successfully executed.
  * @return False if any error was encountered.
  */
-bool script_run(char const* path);
+bool script_run(const char* path);
 
 #endif

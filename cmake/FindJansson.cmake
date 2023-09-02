@@ -9,6 +9,16 @@ find_path(Jansson_INCLUDE_DIR jansson.h
 	  PATH_SUFFIXES "jansson"
 	)
 
+# If this is a static build, only look for the static library
+if(RPGNG_STATIC)
+find_library(Jansson_LIBRARY
+	NAMES libjansson.a
+	PATHS
+	  /usr/lib
+	  /usr/local/lib
+	  ${Jansson_LIBDIR}
+	)
+else()
 find_library(Jansson_LIBRARY
 	NAMES jansson
 	PATHS
@@ -16,6 +26,7 @@ find_library(Jansson_LIBRARY
 	  /usr/local/lib
 	  ${Jansson_LIBDIR}
 	)
+endif()
 
 if (Jansson_INCLUDE_DIR AND Jansson_LIBRARY)
 	set(Jansson_FOUND TRUE)

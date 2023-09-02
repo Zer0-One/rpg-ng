@@ -53,7 +53,7 @@ bool entity_init() {
     return true;
 }
 
-uint16_t entity_create(char const* name) {
+uint16_t entity_create(const char* name) {
     logmsg(LOG_DEBUG, "entity: Attempting to create new entity id:%" PRIu16 ", name:'%s'", entity_next_id, name);
 
     if (entities == NULL) {
@@ -90,7 +90,7 @@ uint16_t entity_create(char const* name) {
         return -1;
     }
 
-    if (htable_add(entities, (uint8_t*)&e->id, sizeof(e->id), e) != 0) {
+    if (htable_add(entities, (uint8_t*)&e->id, sizeof(e->id), KV_VOIDPTR, e) != 0) {
         logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Unable to map newly created entity in entity table", e->id, e->name);
 
         free(e);
@@ -98,7 +98,7 @@ uint16_t entity_create(char const* name) {
         return -1;
     }
 
-    if (htable_add(entities_str, (uint8_t*)name, strlen(name), e) != 0) {
+    if (htable_add(entities_str, (uint8_t*)name, strlen(name), KV_VOIDPTR, e) != 0) {
         logmsg(LOG_WARN, "entity[%" PRIu16 "]('%s'): Unable to map newly created entity in entity string table", e->id, e->name);
 
         if (htable_remove(entities, (uint8_t*)&e->id, sizeof(e->id)) != 0) {
@@ -150,7 +150,7 @@ bool entity_destroy(uint16_t id) {
 }
 
 Entity* entity_get(uint16_t id) {
-    Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
+    Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id), NULL);
 
     if (!e) {
         logmsg(LOG_WARN, "entity[%" PRIu16 "]: Failed to get entity, not found in entity table", id);
@@ -162,7 +162,7 @@ Entity* entity_get(uint16_t id) {
 }
 
 bool entity_has_component(uint16_t id, ComponentType type) {
-    Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
+    Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id), NULL);
 
     if (!e) {
         logmsg(LOG_WARN, "entity[%" PRIu16 "]: Failed to check if entity has component, entity not mapped in entity table", id);
@@ -170,7 +170,7 @@ bool entity_has_component(uint16_t id, ComponentType type) {
         return false;
     }
 
-    if (htable_lookup(e->components, (uint8_t*)&type, sizeof(type)) != NULL) {
+    if (htable_lookup(e->components, (uint8_t*)&type, sizeof(type), NULL) != NULL) {
         return true;
     }
 
@@ -186,7 +186,7 @@ void* entity_get_component(uint16_t id, ComponentType type) {
         return NULL;
     }
 
-    Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id));
+    Entity* e = htable_lookup(entities, (uint8_t*)&id, sizeof(id), NULL);
 
     if (e == NULL) {
         logmsg(LOG_WARN, "entity[%" PRIu16 "]: Failed to get component, entity not mapped in entity table", id);
@@ -194,7 +194,7 @@ void* entity_get_component(uint16_t id, ComponentType type) {
         return NULL;
     }
 
-    void* obj = htable_lookup(e->components, (uint8_t*)&type, sizeof(type));
+    void* obj = htable_lookup(e->components, (uint8_t*)&type, sizeof(type), NULL);
 
     if (obj == NULL) {
         logmsg(LOG_WARN, "entity[%" PRIu16 "]: Failed to get component, requested component not mapped to entity", id);

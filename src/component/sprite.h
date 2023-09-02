@@ -44,7 +44,7 @@ typedef union SpriteSignalArgs {
     };
 } SpriteSignalArgs;
 
-extern char const* sprite_signal_type_str[];
+extern const char* sprite_signal_type_str[];
 
 typedef void (*sprite_cb_t)(SpriteSignalArgs);
 

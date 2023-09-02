@@ -8,6 +8,7 @@
 #include <jansson.h>
 
 #include "config.h"
+#include "htable.h"
 #include "log.h"
 
 #define KV_STR_MAX_LEN 1024
@@ -41,9 +42,27 @@ void config_set_defaults() {
     global_config.entity.first_id = 0;
 }
 
-bool config_load(char const* path) {
+bool config_init() {
+    if (global_config.custom) {
+        logmsg(LOG_WARN, "config: Failed to initialize global config, already initialized");
+
+        return false;
+    }
+
     config_set_defaults();
 
+    global_config.custom = htable_create(16);
+
+    if (!global_config.custom) {
+        logmsg(LOG_WARN, "config: Failed to create custom settings table, the system is out of memory");
+
+        return false;
+    }
+
+    return true;
+}
+
+bool config_load(const char* path) {
     logmsg(LOG_DEBUG, "config: Attempting to load configuration at '%s'", path);
 
     if (!path) {
@@ -169,103 +188,68 @@ fail:
     return false;
 }
 
-ConfigKV* config_create_kv(char const* key) {
+bool config_add(const char* key, KVType type, void* value) {
     if (!key) {
         logmsg(LOG_WARN, "config: Unable to add config setting, key must be non-null");
 
-        return NULL;
+        return false;
     }
 
-    ConfigKV* c = malloc(sizeof(ConfigKV));
-
-    if (!c) {
-        logmsg(LOG_WARN, "config: Unable to add config setting '%s', the system is out of memory", key);
-
-        return NULL;
-    }
-
-    c->key = strdup(key);
-
-    if (!c->key) {
-        free(c);
-
-        logmsg(LOG_WARN, "config: Unable to add config setting '%s', the system is out of memory", key);
-
-        return NULL;
-    }
-
-    return c;
-}
-
-bool config_add_str(char const* key, char const* value) {
-    if (!value) {
-        logmsg(LOG_WARN, "config: Unable to add config setting '%s', value must be non-null", key);
+    if (!global_config.custom) {
+        logmsg(LOG_WARN, "config: Unable to add config setting '%s', global config table not initialized", key);
 
         return false;
     }
 
-    ConfigKV* c = config_create_kv(key);
-
-    if (!c) {
-        return false;
-    }
-
-    c->value_str = strdup(value);
-
-    if (!c->value_str) {
-        free(c->key);
-        free(c);
-
-        logmsg(LOG_WARN, "config: Unable to add config setting '%s', the system is out of memory", key);
+    if (htable_add(global_config.custom, (const uint8_t*)key, strlen(key) + 1, type, value) != 0) {
+        logmsg(LOG_WARN, "config: Failed to add config setting '%s'");
 
         return false;
     }
-
-    c->type = KV_STRING;
 
     return true;
 }
 
-bool config_add_bool(char const* key, bool value) {
-    ConfigKV* c = config_create_kv(key);
+void* config_get(const char* key, KVType* type) {
+    if (!key) {
+        logmsg(LOG_WARN, "config: Unable to get config setting, key must not be null");
 
-    if (!c) {
         return false;
     }
 
-    c->value_bool = value;
+    if (!global_config.custom) {
+        logmsg(LOG_WARN, "config: Unable to get config setting '%s', global config table not initialized", key);
 
-    c->type = KV_BOOL;
-
-    return true;
-}
-
-bool config_add_int(char const* key, int value) {
-    ConfigKV* c = config_create_kv(key);
-
-    if (!c) {
         return false;
     }
 
-    c->value_int = value;
+    void* ret = htable_lookup(global_config.custom, (uint8_t*)key, strlen(key) + 1, type);
 
-    c->type = KV_INT;
+    if (!ret) {
+        logmsg(LOG_WARN, "config: Failed to get config setting '%s'", key);
+    }
 
-    return true;
+    return ret;
 }
 
-bool config_add_real(char const* key, double value) {
-    ConfigKV* c = config_create_kv(key);
+bool config_remove(const char* key) {
+    if (!key) {
+        logmsg(LOG_WARN, "config: Unable to remove config setting, key must not be null");
 
-    if (!c) {
         return false;
     }
 
-    c->value_real = value;
+    if (!global_config.custom) {
+        logmsg(LOG_WARN, "config: Unable to remove config setting '%s', global config table not initialized", key);
 
-    c->type = KV_REAL;
+        return false;
+    }
+
+    if (htable_remove(global_config.custom, (const uint8_t*)key, strlen(key) + 1) != 0) {
+        logmsg(LOG_WARN, "config: Failed to remove config setting '%s'", key);
+
+        return false;
+    }
 
     return true;
 }
-
-bool config_set_null(char const* key) {}

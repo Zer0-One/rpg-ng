@@ -39,10 +39,10 @@ void print_usage() {
     printf("\n");
 }
 
-unsigned int const VERSION_MAJOR = RPGNG_VERSION_MAJOR;
-unsigned int const VERSION_MINOR = RPGNG_VERSION_MINOR;
-unsigned int const VERSION_PATCH = RPGNG_VERSION_PATCH;
-char const* const VERSION = RPGNG_STR(RPGNG_VERSION);
+const unsigned int VERSION_MAJOR = RPGNG_VERSION_MAJOR;
+const unsigned int VERSION_MINOR = RPGNG_VERSION_MINOR;
+const unsigned int VERSION_PATCH = RPGNG_VERSION_PATCH;
+const char* const VERSION = RPGNG_STR(RPGNG_VERSION);
 
 void print_versions() {
     printf("rpgng version %s\n\n", RPGNG_STR(RPGNG_VERSION));
@@ -92,8 +92,12 @@ int main(int argc, char* argv[]) {
 
     logmsg(LOG_INFO, "rpgng initializing");
 
-    // Load config
-    if (!config_load(config_path)) {
+    // Initialize and (optionally) load config
+    if (!config_init()) {
+        _exit(-1);
+    }
+
+    if (config_path && !config_load(config_path)) {
         _exit(-1);
     }
 

@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "htable.h"
+
 typedef struct WindowConfig {
     char* mode;
 
@@ -33,79 +35,49 @@ typedef struct EntityConfig {
     uint16_t first_id;
 } EntityConfig;
 
-typedef enum ConfigKVType {
-    KV_STRING,
-    KV_BOOL,
-    KV_INT,
-    KV_REAL,
-    KV_NULL,
-} ConfigKVType;
-
-typedef struct ConfigKV {
-    char* key;
-
-    ConfigKVType type;
-
-    union {
-        char* value_str;
-        bool value_bool;
-        int value_int;
-        double value_real;
-    };
-} ConfigKV;
-
 typedef struct EngineConfig {
     WindowConfig window;
     ScriptConfig script;
     EntityConfig entity;
-    ConfigKV* custom;
+    HashTable* custom;
 } EngineConfig;
 
 extern EngineConfig global_config;
+
+/**
+ * Initializes the custom config table, and applies default settings to the
+ * global config.
+ *
+ * This function must be called once before the global config is used.
+ */
+bool config_init();
 
 /**
  * Loads the engine configuration from the given path.
  *
  * @return On success, return True. On failure, return False.
  */
-bool config_load(char const* path);
+bool config_load(const char* path);
 
 /**
- * Adds a string key-value pair to the global config.
+ * Adds a key-value pair to the global configuration.
  *
- * This function does not take ownership of or copy the source string. If the
- * original string is deleted or the pointer is invalidated, the added config
- * value will also become invalid.
- *
- * @return True on success, or false if the system is out of memory.
+ * @param type The type of the given value.
  */
-bool config_add_str(char const* key, char const* value);
+bool config_add(const char* key, KVType type, void* value);
 
 /**
- * Adds a bool key-value pair to the global config.
+ * Fetches the given config setting from the global configuration.
  *
- * @return True on success, or false if the system is out of memory.
+ * @param[out] type The type of the config value, if found. This may be set to
+ * NULL if the type is not needed.
  */
-bool config_add_bool(char const* key, bool value);
-
-/**
- * Adds an int key-value pair to the global config.
- *
- * @return True on success, or false if the system is out of memory.
- */
-bool config_add_int(char const* key, int value);
-
-/**
- * Adds a double key-value pair to the global config.
- *
- * @return True on success, or false if the system is out of memory.
- */
-bool config_add_real(char const* key, double value);
+void* config_get(const char* key, KVType* type);
 
 /**
  * Removes the key-value pair with the given key from the global config.
  */
-bool config_remove(char const* key);
+bool config_remove(const char* key);
 
 /**
  * Writes the config to disk in the file specified by the given path.
@@ -114,11 +86,6 @@ bool config_remove(char const* key);
  *
  * @return True on success, or false on failure.
  */
-bool config_save(char const* path);
-
-/**
- * Sets the given config setting to null.
- */
-bool config_set_null(char const* key);
+bool config_save(const char* path);
 
 #endif

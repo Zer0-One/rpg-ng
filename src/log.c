@@ -18,7 +18,7 @@ char* log_file_path = NULL;
 
 log_priority log_level = LOG_INFO;
 
-char const* log_prio_str[] = {
+const char* log_prio_str[] = {
     [LOG_DEBUG] = "DEBUG",
     [LOG_INFO] = "INFO",
     [LOG_WARN] = "WARNING",

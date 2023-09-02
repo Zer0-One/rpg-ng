@@ -52,7 +52,7 @@ bool dialogue_init();
  * @return On success, returns true.
  * @return On failure, returns false.
  */
-bool dialogue_create(uint16_t entity_id, char const* path);
+bool dialogue_create(uint16_t entity_id, const char* path);
 
 /**
  * Destroys the dialogue associated with the given entity, and removes the

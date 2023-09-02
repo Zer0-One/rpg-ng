@@ -31,7 +31,7 @@ struct Transform {
 
 // Signals
 
-char const* transform_signal_type_str[] = {
+const char* transform_signal_type_str[] = {
     "translate",
     "rotate",
     "scale",
@@ -150,7 +150,7 @@ bool transform_create(uint16_t entity_id) {
         return false;
     }
 
-    if (htable_add(e->components, (uint8_t*)&transform_component_type, sizeof(transform_component_type), t) != 0) {
+    if (htable_add(e->components, (uint8_t*)&transform_component_type, sizeof(transform_component_type), KV_VOIDPTR, t) != 0) {
         logmsg(LOG_WARN, "component(transform): Failed to map transform in component table for entity[%" PRIu16 "]('%s')", e->id, e->name);
 
         free(t);
@@ -172,7 +172,7 @@ bool transform_destroy(uint16_t entity_id) {
         return false;
     }
 
-    Transform* t = htable_lookup(e->components, (uint8_t*)&transform_component_type, sizeof(transform_component_type));
+    Transform* t = htable_lookup(e->components, (uint8_t*)&transform_component_type, sizeof(transform_component_type), NULL);
 
     if (!t) {
         logmsg(LOG_WARN, "component(transform): Failed to get transform associated with entity[%" PRIu16 "]('%s')", e->id, e->name);

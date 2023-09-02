@@ -75,7 +75,7 @@ bool inventory_create(uint16_t entity_id, uint16_t* item_ids, size_t ids_size) {
         }
     }
 
-    if (htable_add(e->components, (uint8_t*)&inventory_component_type, sizeof(inventory_component_type), inv) != 0) {
+    if (htable_add(e->components, (uint8_t*)&inventory_component_type, sizeof(inventory_component_type), KV_VOIDPTR, inv) != 0) {
         logmsg(LOG_WARN, "inventory: Failed to map inventory in component table for entity:%" PRIu16, entity_id);
 
         free(inv);

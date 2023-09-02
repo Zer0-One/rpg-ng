@@ -35,7 +35,7 @@ struct Sprite {
 
 // Signals
 
-char const* sprite_signal_type_str[] = {
+const char* sprite_signal_type_str[] = {
     "flip_h",
     "flip_v",
     "z_order",
@@ -169,7 +169,7 @@ bool sprite_create(uint16_t entity_id, char* path) {
 
     s->surface = surface;
 
-    if (htable_add(e->components, (uint8_t*)&sprite_component_type, sizeof(sprite_component_type), s) != 0) {
+    if (htable_add(e->components, (uint8_t*)&sprite_component_type, sizeof(sprite_component_type), KV_VOIDPTR, s) != 0) {
         logmsg(LOG_WARN, "component(sprite): Failed to map sprite in component table for entity[%" PRIu16 "]('%s')", e->id, e->name);
 
         SDL_FreeSurface(s->surface);
@@ -193,7 +193,7 @@ bool sprite_destroy(uint16_t entity_id) {
         return false;
     }
 
-    Sprite* s = htable_lookup(e->components, (uint8_t*)&sprite_component_type, sizeof(sprite_component_type));
+    Sprite* s = htable_lookup(e->components, (uint8_t*)&sprite_component_type, sizeof(sprite_component_type), NULL);
 
     if (!s) {
         logmsg(LOG_WARN, "component(sprite): Unable to destroy sprite, failed to get sprite associated with entity[%" PRIu16 "]('%s')", e->id, e->name);

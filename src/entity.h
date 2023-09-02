@@ -35,7 +35,7 @@ bool entity_init();
  * reference this entity.
  * @return On failure, returns 0.
  */
-uint16_t entity_create(char const* name);
+uint16_t entity_create(const char* name);
 
 /**
  * Destroys the entity represented by the given ID, along with all associated
@@ -58,7 +58,7 @@ Entity* entity_get(uint16_t entity_id);
  * @return On success, returns a dynamically-allocated copy of an Entity with
  * the given ID. The user must free the returned Entity.
  */
-Entity* entity_get_by_name(char const* name);
+Entity* entity_get_by_name(const char* name);
 
 /**
  * Determines if the given entity has the given component.

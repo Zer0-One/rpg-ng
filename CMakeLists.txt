@@ -14,9 +14,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 # Set options
 option(RPGNG_TEST "Enable unit tests" OFF)
 option(RPGNG_DOCS "Enable compiling documentation" OFF)
-option(BUILD_SHARED_LIBS "Build as a shared library" ON)
+#option(RPGNG_STATIC "Build a static binary" ON)
 # To enable debug builds, use -DCMAKE_BUILD_TYPE=Debug
 
+#if(RPGNG_STATIC)
+#    set(Python_USE_STATIC_LIBS ON)
+#endif()
+
+# Find packages
 find_package(Python REQUIRED COMPONENTS Development)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
@@ -56,9 +61,15 @@ target_compile_definitions(rpgng PUBLIC
 # Set link libraries
 target_link_libraries(rpgng Python::Python)
 target_link_libraries(rpgng SDL2::SDL2main)
+target_link_libraries(rpgng jansson::jansson)
+
+#if(RPGNG_STATIC)
+#    target_link_libraries(rpgng SDL2::SDL2-static)
+#    target_link_libraries(rpgng SDL2_image::SDL2_image-static)
+#else()
 target_link_libraries(rpgng SDL2::SDL2)
 target_link_libraries(rpgng SDL2_image::SDL2_image)
-target_link_libraries(rpgng jansson::jansson)
+#endif()
 
 # Set compiler/language options
 set(CMAKE_C_STANDARD 17)

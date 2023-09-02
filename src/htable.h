@@ -16,7 +16,17 @@ typedef struct HTableKey {
     uint8_t* key;
 } HTableKey;
 
+typedef enum KVType {
+    KV_STRING,
+    KV_BOOL,
+    KV_INT,
+    KV_DOUBLE,
+    KV_FLOAT,
+    KV_VOIDPTR,
+} KVType;
+
 typedef struct HTableMapping {
+    KVType type;
     void* value;
     const size_t key_size;
     const uint8_t key[];
@@ -48,6 +58,7 @@ void htable_destroy(HashTable* t);
  * @param t A HashTable to which a mapping will be added.
  * @param key A key to map in the given table.
  * @param key_size The size of the given key in bytes.
+ * @param type The type of the given value.
  * @param value A non-null pointer to any value. This limitation is in place to
  * keep the API simpler. If null values are allowed, then htable_lookup() would
  * return null both for errors and for keys that are mapped to null values.
@@ -57,7 +68,7 @@ void htable_destroy(HashTable* t);
  * @return If the given key already exists in the table, this function returns -2.
  * @return If the system was out of memory, this function returns -3.
  */
-int htable_add(HashTable* t, uint8_t const* key, size_t key_size, void* value);
+int htable_add(HashTable* t, const uint8_t* key, size_t key_size, KVType type, void* value);
 
 /**
  * Removes the mapping for the given key from the table. This function will not
@@ -71,7 +82,7 @@ int htable_add(HashTable* t, uint8_t const* key, size_t key_size, void* value);
  * @return If an invalid argument was given, this function returns -1.
  * @return If the key was not present in the table, this function returns -2.
  */
-int htable_remove(HashTable* t, uint8_t const* key, size_t key_size);
+int htable_remove(HashTable* t, const uint8_t* key, size_t key_size);
 
 /**
  * Performs a lookup for the given key.
@@ -79,11 +90,12 @@ int htable_remove(HashTable* t, uint8_t const* key, size_t key_size);
  * @param t A HashTable from which a mapping will be looked-up.
  * @param key A key which was previously mapped in the given table.
  * @param key_size The size of the given key in bytes.
+ * @param[out] type The type of the stored value, if the key was found. May be NULL if the type is not needed.
  *
  * @return On success, returns the object mapped to the given key.
  * @return NULL on error, or if the key was not present in the table.
  */
-void* htable_lookup(HashTable const* t, uint8_t const* key, size_t key_size);
+void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size, KVType* type);
 
 /**
  * Returns an array of keys that can be iterated over to lookup every mapping
@@ -100,7 +112,7 @@ void* htable_lookup(HashTable const* t, uint8_t const* key, size_t key_size);
  * responsible for freeing this array. The keys in the returned array are
  * pointers to the keys in the table. Do not modify these values.
  */
-HTableKey* htable_get_keys(HashTable const* t, size_t* size);
+HTableKey* htable_get_keys(const HashTable* t, size_t* size);
 
 /**
  * Returns an array of keys and values present in the table at the time this
@@ -116,16 +128,16 @@ HTableKey* htable_get_keys(HashTable const* t, size_t* size);
  * @return A dynamically-allocated array of hash table mappings. The caller is
  * responsible for freeing this array.
  */
-HTableMapping* htable_get_mappings(HashTable const* t, size_t* size);
+HTableMapping* htable_get_mappings(const HashTable* t, size_t* size);
 
 /**
  * Returns the number of buckets present in the table.
  */
-size_t htable_get_size(HashTable const* t);
+size_t htable_get_size(const HashTable* t);
 
 /**
  * Returns the number of mappings present in the table.
  */
-size_t htable_get_mapping_size(HashTable const* t);
+size_t htable_get_mapping_size(const HashTable* t);
 
 #endif

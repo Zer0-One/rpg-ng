@@ -16,6 +16,7 @@
 typedef struct HTableEntry {
     size_t key_size;
     uint8_t* key;
+    KVType type;
     void* value;
 } HTableEntry;
 
@@ -26,7 +27,7 @@ typedef struct HashTable {
 } HashTable;
 
 // Bob Jenkins One-At-A-Time hash
-uint32_t hash(uint8_t const* key, size_t len) {
+uint32_t hash(const uint8_t* key, size_t len) {
     uint32_t hash = 0;
 
     for (size_t i = 0; i < len; i++) {
@@ -90,7 +91,7 @@ void htable_destroy(HashTable* t) {
     free(t);
 }
 
-void* htable_lookup(HashTable const* t, uint8_t const* key, size_t key_size) {
+void* htable_lookup(const HashTable* t, const uint8_t* key, size_t key_size, KVType* type) {
     if (t == NULL) {
         logmsg(LOG_WARN, "htable: Attempted a lookup in a null table");
 
@@ -123,6 +124,10 @@ void* htable_lookup(HashTable const* t, uint8_t const* key, size_t key_size) {
             }
 
             if (j == key_size) {
+                if (type) {
+                    *type = t->buckets[i].type;
+                }
+
                 return t->buckets[i].value;
             }
         }
@@ -147,7 +152,7 @@ int htable_rehash(HashTable* t, size_t scale) {
     }
 
     for (size_t i = 0; i < t->bucket_count; i++) {
-        int result = htable_add(new_t, t->buckets[i].key, t->buckets[i].key_size, t->buckets[i].value);
+        int result = htable_add(new_t, t->buckets[i].key, t->buckets[i].key_size, t->buckets[i].type, t->buckets[i].value);
 
         if (result != 0) {
             htable_destroy(new_t);
@@ -171,7 +176,7 @@ int htable_rehash(HashTable* t, size_t scale) {
     return 0;
 }
 
-int htable_add(HashTable* t, uint8_t const* key, size_t key_size, void* value) {
+int htable_add(HashTable* t, const uint8_t* key, size_t key_size, KVType type, void* value) {
     if (t == NULL) {
         logmsg(LOG_WARN, "htable: Attempted to add a mapping to a null table");
 
@@ -196,7 +201,7 @@ int htable_add(HashTable* t, uint8_t const* key, size_t key_size, void* value) {
         return -1;
     }
 
-    if (htable_lookup(t, key, key_size) != NULL) {
+    if (htable_lookup(t, key, key_size, NULL) != NULL) {
         logmsg(LOG_WARN, "htable: Unable to add mapping to table, key already exists");
 
         return -2;
@@ -218,6 +223,7 @@ int htable_add(HashTable* t, uint8_t const* key, size_t key_size, void* value) {
             memcpy(t->buckets[i].key, key, key_size);
 
             t->buckets[i].key_size = key_size;
+            t->buckets[i].type = type;
             t->buckets[i].value = value;
 
             t->mapping_count++;
@@ -233,10 +239,10 @@ int htable_add(HashTable* t, uint8_t const* key, size_t key_size, void* value) {
         return -3;
     }
 
-    return htable_add(t, key, key_size, value);
+    return htable_add(t, key, key_size, type, value);
 }
 
-int htable_remove(HashTable* t, uint8_t const* key, size_t key_size) {
+int htable_remove(HashTable* t, const uint8_t* key, size_t key_size) {
     if (t == NULL) {
         logmsg(LOG_WARN, "htable: Attempted to remove a mapping from a null table");
 
@@ -273,6 +279,7 @@ int htable_remove(HashTable* t, uint8_t const* key, size_t key_size) {
                 free(t->buckets[i].key);
                 t->buckets[i].key = NULL;
                 t->buckets[i].key_size = 0;
+                t->buckets[i].type = 0;
                 t->buckets[i].value = NULL;
 
                 return 0;
@@ -285,7 +292,7 @@ int htable_remove(HashTable* t, uint8_t const* key, size_t key_size) {
     return -2;
 }
 
-HTableKey* htable_get_keys(HashTable const* t, size_t* size) {
+HTableKey* htable_get_keys(const HashTable* t, size_t* size) {
     if (t == NULL) {
         logmsg(LOG_WARN, "htable: Unable to get keys from NULL table");
 
@@ -313,10 +320,10 @@ HTableKey* htable_get_keys(HashTable const* t, size_t* size) {
     return ret;
 }
 
-size_t htable_get_size(HashTable const* t) {
+size_t htable_get_size(const HashTable* t) {
     return t->bucket_count;
 }
 
-size_t htable_get_mapping_size(HashTable const* t) {
+size_t htable_get_mapping_size(const HashTable* t) {
     return t->mapping_count;
 }

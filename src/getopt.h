@@ -18,7 +18,7 @@ int optind = 1;
 int opterr = 1;
 int optopt = 0;
 
-int getopt(int argc, char* argv[], char const* optstring) {
+int getopt(int argc, char* argv[], const char* optstring) {
     // No more arguments available (second condition should never hit)
     if (optind >= argc || argv[optind] == NULL) {
         return -1;
